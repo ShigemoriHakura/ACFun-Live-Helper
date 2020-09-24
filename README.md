@@ -4,6 +4,9 @@
 ## 截图
 ![XSplit截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Danmaku/master/screenshots/xsplit.png) 
 
+## 下载
+1. [Releases](https://github.com/ShigemoriHakura/ACFun-Danmaku-Helper-Browser/releases)
+
 ## 编译
 * npm install
 * npm run package
