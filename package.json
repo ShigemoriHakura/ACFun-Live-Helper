@@ -1,0 +1,26 @@
+{
+  "name": "ACFun_Danmaku_Browser",
+  "version": "0.1.0",
+  "description": "A floating transparent danmaku browser.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . DanmakuHelper --platform=win32 --arch=x64 --icon=favicon.ico --out=./releases --asar --app-version=0.1.0 --overwrite"
+  },
+  "repository": "",
+  "keywords": [
+    "Floating",
+    "Browser",
+    "Windows",
+    "ACFun"
+  ],
+  "author": "Hakura",
+  "devDependencies": {
+    "electron": "~1.7.11",
+    "electron-rebuild": "^1.7.3"
+  },
+  "dependencies": {
+    "electron-config": "^2.0.0",
+    "npm-check-updates": "^2.14.2"
+  }
+}
