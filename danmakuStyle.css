@@ -37,7 +37,7 @@ yt-live-chat-author-chip #author-name {
 
 /* Outlines */
 yt-live-chat-renderer * {
-  text-shadow: -2px -2px #000000, -2px -1px #000000, -2px 0px #000000, -2px 1px #000000, -2px 2px #000000, -1px -2px #000000, -1px -1px #000000, -1px 0px #000000, -1px 1px #000000, -1px 2px #000000, 0px -2px #000000, 0px -1px #000000, 0px 0px #000000, 0px 1px #000000, 0px 2px #000000, 1px -2px #000000, 1px -1px #000000, 1px 0px #000000, 1px 1px #000000, 1px 2px #000000, 2px -2px #000000, 2px -1px #000000, 2px 0px #000000, 2px 1px #000000, 2px 2px #000000;
+  text-shadow: -1px -1px #000000, -1px 0px #000000, -1px 1px #000000, 0px -1px #000000, 0px 0px #000000, 0px 1px #000000, 1px -1px #000000, 1px 0px #000000, 1px 1px #000000;
   font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
   font-size: 18px !important;
   line-height: 0px !important;
@@ -157,7 +157,7 @@ yt-live-chat-text-message-renderer #author-name {
 
 yt-live-chat-text-message-renderer #author-name::after {
   content: ":";
-  margin-left: 2px;
+  margin-left: 1px;
 }
 
 /* Messages. */

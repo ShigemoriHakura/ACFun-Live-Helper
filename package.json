@@ -1,6 +1,6 @@
 {
   "name": "ACFun_Danmaku_Browser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A floating transparent danmaku browser.",
   "main": "main.js",
   "scripts": {
