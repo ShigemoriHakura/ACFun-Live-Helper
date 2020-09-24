@@ -50,12 +50,12 @@ function createWindow () {
 
     tray = new Tray(path.join(__dirname, 'favicon.ico'));
     const contextMenu = Menu.buildFromTemplate([
-       {label: '退出', click: () => {mainWindow.destroy()}},//我们需要在这里有一个真正的退出（这里直接强制退出）
-       {label: '显示', click: () => {
+        {label: '显示', click: () => {
             console.log("Clickthrough disabled");
             mainWindow.setIgnoreMouseEvents(false)
             mainWindow.webContents.send('setClickable');
        }},
+       {label: '退出', click: () => {mainWindow.destroy()}},//我们需要在这里有一个真正的退出（这里直接强制退出）
      ])
      tray.setToolTip('弹幕助手')
      tray.setContextMenu(contextMenu)
