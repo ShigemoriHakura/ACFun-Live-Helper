@@ -114,18 +114,86 @@ yt-live-chat-text-message-renderer #usermark {
 }
 
 /* Medals. */
-yt-live-chat-text-message-renderer #medalName {
+yt-live-chat-text-message-renderer #medalName-1 {
   margin-right:0px!important;
   display: inline !important;
-  color: #BEBA9E !important;
+  color: #4CB166 !important;
   font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
   font-size: 20px !important;
   line-height: 20px !important;
 }
 
-yt-live-chat-text-message-renderer #medalLevel {
+yt-live-chat-text-message-renderer #medalName-2 {
+  margin-right:0px!important;
   display: inline !important;
-  color: #BEBA9E !important;
+  color: #3E99D1 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalName-3 {
+  margin-right:0px!important;
+  display: inline !important;
+  color: #E29841 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalName-4 {
+  margin-right:0px!important;
+  display: inline !important;
+  color: #C43D37 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalName-5 {
+  margin-right:0px!important;
+  display: inline !important;
+  color: #6630E9 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalLevel-1 {
+  display: inline !important;
+  color: #4CB166 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalLevel-2 {
+  display: inline !important;
+  color: #3E99D1 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalLevel-3 {
+  display: inline !important;
+  color: #E29841 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalLevel-4 {
+  display: inline !important;
+  color: #C43D37 !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 20px !important;
+  line-height: 20px !important;
+}
+
+yt-live-chat-text-message-renderer #medalLevel-5 {
+  display: inline !important;
+  color: #6630E9 !important;
   font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
   font-size: 20px !important;
   line-height: 20px !important;
