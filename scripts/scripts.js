@@ -1,7 +1,7 @@
-global.$ = $;
+
 
 const { remote } = require('electron');
-const { Menu, BrowserWindow, MenuItem, shell } = remote;
+const { BrowserWindow } = remote;
 const fs = require("fs");
 const path = require('path');
 const ipcRenderer = require('electron').ipcRenderer;

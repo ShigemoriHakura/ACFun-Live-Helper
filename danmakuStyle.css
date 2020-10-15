@@ -237,7 +237,13 @@ yt-live-chat-text-message-renderer #joinMessage * {
   line-height: 18px !important;
 }
 
-
++yt-live-chat-text-message-renderer #joinGroupMessage,
+yt-live-chat-text-message-renderer #joinGroupMessage * {
+  color: #C300FF !important;
+  font-family: "ZCOOL KuaiLe", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", SimHei, Arial, sans-serif;
+  font-size: 18px !important;
+  line-height: 18px !important;
+}
 
 yt-live-chat-text-message-renderer #quitMessage,
 yt-live-chat-text-message-renderer #quitMessage * {

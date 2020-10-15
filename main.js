@@ -27,6 +27,11 @@ function createWindow () {
         width: 400, 
         height: 600, 
         transparent: true,
+        webPreferences: {
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            webviewTag: true
+        }
     });
 
     // and load the index.html of the app.
