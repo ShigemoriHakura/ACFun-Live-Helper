@@ -9,7 +9,7 @@
 
 ## 编译
 * npm install
-* npm run package
+* npm run electron:build 
 
 ## 感谢
 * https://github.com/mitchas/glass-browser 项目修改与此项目

@@ -35,6 +35,10 @@
           <v-btn class="ma-2" elevation="2" color="success" @click="startDanmakuHime">启动弹幕姬</v-btn>
           <v-btn class="ma-2" elevation="2" color="error" @click="stopDanmakuHime">停止弹幕姬</v-btn>
         </v-col>
+        <v-col cols="12" md="12">
+          <v-text-field v-model="danmakuText" type="text" label="弹幕内容"></v-text-field>
+          <v-btn class="ma-2" elevation="2" color="error" @click="sendDanmaku(danmakuText)">发送弹幕</v-btn>
+        </v-col>
         <v-col cols="12" md="6">
           在线观众
           <v-simple-table>
@@ -133,6 +137,8 @@
       LogList: [],
       fetchWatchingListTimer: 0,
       danmakuWindow: null,
+
+      danmakuText: ""
     }),
     async created() {
       await this.getDid()
@@ -243,38 +249,73 @@
         }
       },
       async sendDanmaku(Danmaku){
-        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/audience/action/comment?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
-          method: "POST",
-          headers: {
-            Referer: "https://www.acfun.cn",
-            cookie: this.loginCookies,
-          },
-          form: {
-            visitorId: this.userId,
-            liveId: this.LiveId,
-            content: Danmaku
-          },
-        })
+        if(this.LiveId != ""){
+          const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/audience/action/comment?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
+            method: "POST",
+            headers: {
+              Referer: "https://www.acfun.cn",
+              cookie: this.loginCookies,
+            },
+            form: {
+              visitorId: this.userId,
+              liveId: this.LiveId,
+              content: Danmaku
+            },
+          })
+          var resJson = JSON.parse(res.body)
+          if(resJson.result == 1){
+            this.danmakuText = ""
+            this.LogList.unshift({
+              logTime: Date.now(),
+              logContent: "弹幕 " + Danmaku + " 发送成功"
+            })
+          }
+        }else{
+          this.text = "请先进入直播间"
+          this.snackbar = true
+        }
       },
       async kickUser(userName, userId){
-        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/manager/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
-          method: "POST",
-          headers: {
-            Referer: "https://live.acfun.cn",
-            cookie: this.loginCookies,
-          },
-          form: {
-            visitorId: this.userId,
-            liveId: this.LiveId,
-            kickedUserId: userId,
-          },
-        })
-        var resJson = JSON.parse(res.body)
-        if(resJson.result == 1){
-          this.LogList.unshift({
-            logTime: Date.now(),
-            logContent: "踢人 " + userName + "(" + userId + ") 成功"
+        if(this.userId == this.RoomID){
+          const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
+            method: "POST",
+            headers: {
+              Referer: "https://live.acfun.cn",
+              cookie: this.loginCookies,
+            },
+            form: {
+              visitorId: this.userId,
+              liveId: this.LiveId,
+              kickedUserId: userId,
+            },
           })
+          var resJson = JSON.parse(res.body)
+          if(resJson.result == 1){
+            this.LogList.unshift({
+              logTime: Date.now(),
+              logContent: "主播账号踢人 " + userName + "(" + userId + ") 成功"
+            })
+          }
+        }else{
+          const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/manager/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
+            method: "POST",
+            headers: {
+              Referer: "https://live.acfun.cn",
+              cookie: this.loginCookies,
+            },
+            form: {
+              visitorId: this.userId,
+              liveId: this.LiveId,
+              kickedUserId: userId,
+            },
+          })
+          var resJson = JSON.parse(res.body)
+          if(resJson.result == 1){
+            this.LogList.unshift({
+              logTime: Date.now(),
+              logContent: "房管账号踢人 " + userName + "(" + userId + ") 成功"
+            })
+          }
         }
       },
       leaveRoom(){
