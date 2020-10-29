@@ -1,26 +1,43 @@
 {
-  "name": "ACFun_Danmaku_Browser",
-  "version": "0.1.1",
-  "description": "A floating transparent danmaku browser.",
-  "main": "main.js",
+  "name": "aclivehelper",
+  "version": "0.0.3",
+  "private": true,
   "scripts": {
-    "start": "electron .",
-    "package": "electron-packager . DanmakuHelper --platform=win32 --arch=x64 --icon=favicon.ico --out=./releases --asar --app-version=0.1.0 --overwrite"
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps"
   },
-  "repository": "",
-  "keywords": [
-    "Floating",
-    "Browser",
-    "Windows",
-    "ACFun"
-  ],
-  "author": "Hakura",
-  "devDependencies": {
-    "electron": "~10.1.2",
-    "electron-rebuild": "^1.7.3"
-  },
+  "main": "background.js",
   "dependencies": {
+    "@mdi/font": "^3.6.95",
+    "axios": "^0.21.0",
+    "core-js": "^3.6.5",
     "electron-config": "^2.0.0",
-    "npm-check-updates": "^2.14.2"
+    "got": "^11.8.0",
+    "register-service-worker": "^1.7.1",
+    "roboto-fontface": "*",
+    "vue": "^2.6.11",
+    "vue-router": "^3.2.0",
+    "vuetify": "^2.2.11",
+    "vuetify-notify": "^1.0.6"
+  },
+  "devDependencies": {
+    "@types/electron-devtools-installer": "^2.2.0",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-pwa": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "electron": "^9.0.0",
+    "electron-devtools-installer": "^3.1.0",
+    "node-sass": "^4.12.0",
+    "sass": "^1.19.0",
+    "sass-loader": "^8.0.2",
+    "vue-cli-plugin-electron-builder": "~2.0.0-rc.4",
+    "vue-cli-plugin-vuetify": "~2.0.7",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.3.0"
   }
 }
