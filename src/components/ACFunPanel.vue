@@ -52,6 +52,40 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="blockUserDialog" width="500">
+        <v-card>
+          <v-card-title class="headline grey lighten-2">
+            确定要拉黑观众： {{blockUserName}} ({{blockUserId}}) 么？
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="danger" text @click="blockUserDialogStart">
+              确定
+            </v-btn>
+            <v-btn color="primary" text @click="blockUserDialogClose">
+              取消
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog v-model="unblockUserDialog" width="500">
+        <v-card>
+          <v-card-title class="headline grey lighten-2">
+            确定要解除拉黑观众： {{unblockUserName}} ({{unblockUserId}}) 么？
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="danger" text @click="unblockUserDialogStart">
+              确定
+            </v-btn>
+            <v-btn color="primary" text @click="unblockUserDialogClose">
+              取消
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
     <v-container v-if="!isLogin" style="max-width: 100%!important;">
       登录ACFun账号
@@ -76,101 +110,157 @@
       </v-btn>
     </v-container>
     <v-container v-if="isLogin" style="max-width: 100%!important;">
-      AC直播助手版本：0.0.9，欢迎你，{{userName}}
-      <v-row>
-        <v-col cols="12" md="6">
-          <v-text-field v-model="roomID" type="number" label="直播间ID"></v-text-field>
-          <v-btn class="ma-2" elevation="2" color="primary" @click="loadRoom">进入房间</v-btn>
-          <v-btn class="ma-2" elevation="2" color="warning" @click="leaveRoom">退出房间</v-btn>
-          <v-btn class="ma-2" elevation="2" color="error" @click="quitAccount">登出账号</v-btn>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-text-field v-model="danmakuText" type="text" label="弹幕内容(按回车发出)" @keyup.enter="sendDanmaku(danmakuText)"></v-text-field>
-          <v-btn class="ma-2" elevation="2" color="error" @click="sendDanmaku(danmakuText)">发送弹幕</v-btn>
-        </v-col>
-        <v-col cols="12" md="12">
-          <v-btn class="ma-2" elevation="2" color="success" @click="startDanmakuHime">开启弹幕显示</v-btn>
-          <v-btn class="ma-2" elevation="2" color="error" @click="stopDanmakuHime">关闭弹幕显示</v-btn>
-        </v-col>
-        <v-col cols="12" md="4">
-          在线观众 ({{WatchingList.length}})
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">
-                    用户名
-                  </th>
-                  <th class="text-left">
-                    UID
-                  </th>
-                  <th class="text-left">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in WatchingList" :key="item.userId">
-                  <td>{{ item.nickname }}</td>
-                  <td>{{ item.userId }}</td>
-                  <v-btn class="ma-2" elevation="2" color="warning" @click="addManagerDialogShow(item.nickname, item.userId)">房管</v-btn>
-                  <v-btn class="ma-2" elevation="2" color="error" @click="deleteUserDialogShow(item.nickname, item.userId)">踢出</v-btn>
-                </tr>
-                </tbody>
-            </template>
-          </v-simple-table>
-        </v-col>
-        <v-col cols="12" md="4">
-          房管列表 ({{ManagerList.length}})
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">
-                    用户名
-                  </th>
-                  <th class="text-left">
-                    UID
-                  </th>
-                  <th class="text-left">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in ManagerList" :key="item.userId">
-                  <td>{{ item.nickname }}</td>
-                  <td>{{ item.userId }}</td>
-                  <v-btn class="ma-2" elevation="2" color="error" @click="deleteManagerDialogShow(item.nickname, item.userId)">取消</v-btn>
-                </tr>
-                </tbody>
-            </template>
-          </v-simple-table>
-        </v-col>
-        <v-col cols="12" md="4">
-          系统日志
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">
-                    日志时间
-                  </th>
-                  <th class="text-left">
-                    日志内容
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in LogList" :key="item.name">
-                  <td>{{ item.logTime | formatDate }}</td>
-                  <td>{{ item.logContent }}</td>
-                </tr>
-                </tbody>
-            </template>
-          </v-simple-table>
-        </v-col>
-      </v-row>
+      AC直播助手版本：0.1.0，欢迎你，{{userName}}
+      <v-tabs>
+        <v-tab>
+          首页
+        </v-tab>
+        <v-tab>
+          房管列表
+        </v-tab>
+        <v-tab>
+          拉黑列表
+        </v-tab>
+        <v-tab>
+          日志
+        </v-tab>
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field v-model="roomID" type="number" label="直播间ID"></v-text-field>
+              <v-btn class="ma-2" elevation="2" color="primary" @click="loadRoom">进入房间</v-btn>
+              <v-btn class="ma-2" elevation="2" color="warning" @click="leaveRoom">退出房间</v-btn>
+              <v-btn class="ma-2" elevation="2" color="error" @click="quitAccount">登出账号</v-btn>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field v-model="danmakuText" type="text" label="弹幕内容(按回车发出)" @keyup.enter="sendDanmaku(danmakuText)"></v-text-field>
+              <v-btn class="ma-2" elevation="2" color="error" @click="sendDanmaku(danmakuText)">发送弹幕</v-btn>
+            </v-col>
+            <v-col cols="12" md="12">
+              <v-btn class="ma-2" elevation="2" color="success" @click="startDanmakuHime">开启弹幕显示</v-btn>
+              <v-btn class="ma-2" elevation="2" color="error" @click="stopDanmakuHime">关闭弹幕显示</v-btn>
+            </v-col>
+            <v-col cols="12" md="12">
+              在线观众 ({{WatchingList.length}})
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        用户名
+                      </th>
+                      <th class="text-left">
+                        UID
+                      </th>
+                      <th class="text-left">
+                        操作
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in WatchingList" :key="item.userId">
+                      <td>{{ item.nickname }}</td>
+                      <td>{{ item.userId }}</td>
+                      <v-btn class="ma-2" elevation="2" color="warning" @click="addManagerDialogShow(item.nickname, item.userId)">房管</v-btn>
+                      <v-btn class="ma-2" elevation="2" color="error" @click="deleteUserDialogShow(item.nickname, item.userId)">踢出</v-btn>
+                      <v-btn class="ma-2" elevation="2" @click="blockUserDialogShow(item.nickname, item.userId)">拉黑</v-btn>
+                    </tr>
+                    </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-tab-item>
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12" md="12">
+              房管列表 ({{ManagerList.length}})
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        用户名
+                      </th>
+                      <th class="text-left">
+                        UID
+                      </th>
+                      <th class="text-left">
+                        操作
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in ManagerList" :key="item.userId">
+                      <td>{{ item.nickname }}</td>
+                      <td>{{ item.userId }}</td>
+                      <v-btn class="ma-2" elevation="2" color="error" @click="deleteManagerDialogShow(item.nickname, item.userId)">取消</v-btn>
+                    </tr>
+                    </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-tab-item>
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12" md="12">
+              拉黑列表 ({{BlockList.length}})
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        用户名
+                      </th>
+                      <th class="text-left">
+                        UID
+                      </th>
+                      <th class="text-left">
+                        操作
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in BlockList" :key="item.userId">
+                      <td>{{ item.nickname }}</td>
+                      <td>{{ item.userId }}</td>
+                      <v-btn class="ma-2" elevation="2" @click="unblockUserDialogShow(item.nickname, item.userId)">解除拉黑</v-btn>
+                    </tr>
+                    </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-tab-item>
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12" md="12">
+              系统日志
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        日志时间
+                      </th>
+                      <th class="text-left">
+                        日志内容
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in LogList" :key="item.name">
+                      <td>{{ item.logTime | formatDate }}</td>
+                      <td>{{ item.logContent }}</td>
+                    </tr>
+                    </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-tab-item>
+      </v-tabs>
     </v-container>
     <v-snackbar v-model="snackbar">
         {{ text }}
@@ -217,6 +307,7 @@
       DanmakuList: [],
       WatchingList: [],
       ManagerList: [],
+      BlockList: [],
       LogList: [],
       fetchWatchingListTimer: 0,
       fetchManagerListTimer: 0,
@@ -234,6 +325,14 @@
       deleteUserDialog: false,
       deleteUserName: "",
       deleteUserId: 0,
+      
+      blockUserDialog: false,
+      blockUserName: "",
+      blockUserId: 0,
+      
+      unblockUserDialog: false,
+      unblockUserName: "",
+      unblockUserId: 0,
     }),
     async created() {
       await this.getDid()
@@ -302,6 +401,10 @@
       },
       syncSavedData(){
         this.roomID = econfig.get("roomID")
+        this.BlockList = econfig.get("blockList")
+        if(this.BlockList == undefined){
+          this.BlockList = []
+        }
         this.LogList.unshift({
           logTime: Date.now(),
           logContent: "读取缓存内容完成"
@@ -383,7 +486,7 @@
           this.text = "请先进入直播间"
           this.snackbar = true
         }
-      },
+      },  
       async kickUser(userName, userId){
         if(this.userId == this.roomID){
           const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
@@ -453,14 +556,22 @@
         if(resJson.result == 1){
           for (let i = 0; i < resJson.data.list.length; i++) {
             const element = resJson.data.list[i];
-            let result = this.WatchingList.find(c => Number(c.userId) === element.userId);
+            let result = this.WatchingList.find(c => Number(c.userId) === element.userId)
+            let blockResult = this.BlockList.find(c => Number(c.userId) === element.userId)
+            if(blockResult){
+              this.LogList.unshift({
+                logTime: Date.now(),
+                logContent: "检测到黑名单观众 " + element.nickname + "(" + element.userId + ")"
+              })
+              this.kickUser(element.nickname, element.userId)
+            }
             if(!result && element.userId !== this.userId && element.anonymousUser == false){
               this.WatchingList.push(element)
             }
           }
           for (let i = 0; i < this.WatchingList.length; i++) {
             const element = this.WatchingList[i];
-            let result = resJson.data.list.find(c => Number(c.userId) === element.userId);
+            let result = resJson.data.list.find(c => Number(c.userId) === element.userId)
             if(!result){
               this.WatchingList.splice(i, 1)
             }
@@ -614,6 +725,46 @@
         this.deleteUserDialog = false
         this.deleteUserName = ""
         this.deleteUserId = 0
+      },
+      blockUserDialogShow(blockUserName, blockUserId){
+        this.blockUserName = blockUserName
+        this.blockUserId = blockUserId
+        this.blockUserDialog = true
+      },
+      blockUserDialogStart(){
+        this.blockUserDialog = false
+        this.BlockList.unshift({
+          nickname: this.blockUserName,
+          userId: this.blockUserId,
+        })
+        econfig.set("blockList", this.BlockList)
+        this.blockUserName = ""
+        this.blockUserId = 0
+      },
+      blockUserDialogClose(){
+        this.blockUserDialog = false
+        this.blockUserName = ""
+        this.blockUserId = 0
+      },
+      unblockUserDialogShow(unblockUserName, unblockUserId){
+        this.unblockUserName = unblockUserName
+        this.unblockUserId = unblockUserId
+        this.unblockUserDialog = true
+      },
+      unblockUserDialogStart(){
+        this.unblockUserDialog = false
+        let result = this.BlockList.find(c => Number(c.userId) === this.unblockUserId)
+        if(result){
+          this.BlockList.splice(result, 1)
+        }
+        econfig.set("blockList", this.BlockList)
+        this.unblockUserName = ""
+        this.unblockUserId = 0
+      },
+      unblockUserDialogClose(){
+        this.unblockUserDialog = false
+        this.unblockUserName = ""
+        this.unblockUserId = 0
       },
     } 
   }

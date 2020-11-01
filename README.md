@@ -6,6 +6,7 @@
 * 房管管理
 * 弹幕透明浏览器显示
 * 弹幕发送
+* 拉黑观众
 
 ## 截图
 ![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
