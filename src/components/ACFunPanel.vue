@@ -53,7 +53,7 @@
         </v-card>
       </v-dialog>
     </div>
-    <v-container v-if="!isLogin">
+    <v-container v-if="!isLogin" style="max-width: 100%!important;">
       登录ACFun账号
       <v-text-field
         v-model="account"
@@ -75,8 +75,8 @@
         登录
       </v-btn>
     </v-container>
-    <v-container v-if="isLogin">
-      AC直播助手版本：0.0.7，欢迎你，{{userName}}
+    <v-container v-if="isLogin" style="max-width: 100%!important;">
+      AC直播助手版本：0.0.9，欢迎你，{{userName}}
       <v-row>
         <v-col cols="12" md="6">
           <v-text-field v-model="roomID" type="number" label="直播间ID"></v-text-field>

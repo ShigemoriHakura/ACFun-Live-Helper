@@ -8,17 +8,21 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: { navShow: true, }
+    
   },
   {
     path: '/danmakuHime',
     name: 'danmakuHime',
-    component: () => import('../views/danmakuHime.vue')
+    component: () => import('../views/danmakuHime.vue'),
+    meta: { navShow: false, }
   },
   {
     path: '/about',
     name: 'About',
-    component: () => import('../views/About.vue')
+    component: () => import('../views/About.vue'),
+    meta: { navShow: true, }
   }
 ]
 

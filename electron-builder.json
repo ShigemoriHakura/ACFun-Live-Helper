@@ -1,0 +1,22 @@
+{
+    "appId": "ACLiveHelper",
+    "productName": "ACLiveHelper",
+    "copyright": "Hakura Tech",
+    "win": {
+        "target": "nsis",
+        "icon": "favicon.ico",
+        "publisherName": "Hakura"
+    },
+    "nsis": {
+        "installerIcon": "favicon.ico",
+        "uninstallerIcon": "favicon.ico",
+        "oneClick": false,
+        "perMachine": true,
+        "allowToChangeInstallationDirectory": true
+    },
+    "publish": {
+        "provider": "s3",
+        "bucket": "bucko",
+        "path": "/releases"
+    }
+}

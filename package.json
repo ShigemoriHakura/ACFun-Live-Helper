@@ -1,6 +1,8 @@
 {
   "name": "aclivehelper",
-  "version": "0.0.7",
+  "version": "0.0.9",
+  "author": "Hakura",
+  "description": "A helper for acfun live",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer app>
+    <v-navigation-drawer v-if="$route.meta.navShow" permanent expand-on-hover app>
       <v-list nav>
         <v-list-item v-for="item in items" :key="item.title" :to="item.link" link>
           <v-list-item-icon>
@@ -38,6 +38,6 @@ export default {
       ],
       right: null,
     }
-  },
+  }
 };
 </script>
