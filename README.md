@@ -17,3 +17,15 @@
 ## 编译
 * npm install
 * npm run electron:build 
+
+## 网页开播逻辑
+* 上传封面：
+* https://member.acfun.cn/common/api/getQiniuToken 获取token
+* https://upload.qiniup.com/ token用base64解码，直接axios就ok
+* 上传封面完成
+* 开播流检测：
+* https://api.kuaishouzt.com/rest/zt/live/web/obs/transcodeInfo 获取转码信息,可以忽略
+* https://api.kuaishouzt.com/rest/zt/live/web/obs/config 获取推流地址和密钥
+* https://api.kuaishouzt.com/rest/zt/live/web/obs/startpush 开始推流，需要用got的buffer（暂时没找到更方便的）
+* 关播：
+* https://api.kuaishouzt.com/rest/zt/live/web/obs/stoppush 关闭推流

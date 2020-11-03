@@ -1,6 +1,6 @@
 {
   "name": "aclivehelper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Hakura",
   "description": "A helper for acfun live",
   "private": true,
@@ -16,15 +16,16 @@
   "dependencies": {
     "@mdi/font": "^3.6.95",
     "axios": "^0.21.0",
-    "core-js": "^3.6.5",
     "electron-config": "^2.0.0",
     "got": "^11.8.0",
+    "js-base64": "^3.5.2",
     "register-service-worker": "^1.7.1",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
+    "vue-clipboard2": "^0.3.1",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",
-    "vuetify-notify": "^1.0.6"
+    "vuetify-image-input": "^19.1.0"
   },
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",

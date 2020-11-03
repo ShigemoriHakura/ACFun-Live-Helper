@@ -34,6 +34,7 @@ export default {
     return {
       items: [
         { title: '弹幕助手', icon: 'mdi-view-dashboard', link: '/'},
+        { title: '直播开播', icon: 'mdi-remote', link: '/live'},
         { title: '关于', icon: 'mdi-help-box', link: '/about'},
       ],
       right: null,

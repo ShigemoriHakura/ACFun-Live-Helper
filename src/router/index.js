@@ -13,6 +13,12 @@ const routes = [
     
   },
   {
+    path: '/live',
+    name: 'Live',
+    component: () => import('../views/Live.vue'),
+    meta: { navShow: true, }
+  },
+  {
     path: '/danmakuHime',
     name: 'danmakuHime',
     component: () => import('../views/danmakuHime.vue'),

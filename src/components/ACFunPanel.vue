@@ -89,28 +89,16 @@
     </div>
     <v-container v-if="!isLogin" style="max-width: 100%!important;">
       登录ACFun账号
-      <v-text-field
-        v-model="account"
-        label="手机号或邮箱"
-        required
-      ></v-text-field>
-  
-      <v-text-field type="password"
-        v-model="password"
-        label="密码"
-        required
-      ></v-text-field>
-  
-      <v-btn
-        color="success"
-        class="mr-4"
-        @click="loginToACFun"
-      >
+      <v-text-field v-model="account" label="手机号或邮箱" required></v-text-field>
+
+      <v-text-field type="password" v-model="password" label="密码" required></v-text-field>
+
+      <v-btn color="success" class="mr-4" @click="loginToACFun">
         登录
       </v-btn>
     </v-container>
     <v-container v-if="isLogin" style="max-width: 100%!important;">
-      AC直播助手版本：0.1.0，欢迎你，{{userName}}
+      AC直播助手版本：0.1.1，欢迎你，{{userName}}
       <v-tabs>
         <v-tab>
           首页
@@ -133,7 +121,8 @@
               <v-btn class="ma-2" elevation="2" color="error" @click="quitAccount">登出账号</v-btn>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field v-model="danmakuText" type="text" label="弹幕内容(按回车发出)" @keyup.enter="sendDanmaku(danmakuText)"></v-text-field>
+              <v-text-field v-model="danmakuText" type="text" label="弹幕内容(按回车发出)"
+                @keyup.enter="sendDanmaku(danmakuText)"></v-text-field>
               <v-btn class="ma-2" elevation="2" color="error" @click="sendDanmaku(danmakuText)">发送弹幕</v-btn>
             </v-col>
             <v-col cols="12" md="12">
@@ -161,11 +150,14 @@
                     <tr v-for="item in WatchingList" :key="item.userId">
                       <td>{{ item.nickname }}</td>
                       <td>{{ item.userId }}</td>
-                      <v-btn class="ma-2" elevation="2" color="warning" @click="addManagerDialogShow(item.nickname, item.userId)">房管</v-btn>
-                      <v-btn class="ma-2" elevation="2" color="error" @click="deleteUserDialogShow(item.nickname, item.userId)">踢出</v-btn>
-                      <v-btn class="ma-2" elevation="2" @click="blockUserDialogShow(item.nickname, item.userId)">拉黑</v-btn>
+                      <v-btn class="ma-2" elevation="2" color="warning"
+                        @click="addManagerDialogShow(item.nickname, item.userId)">房管</v-btn>
+                      <v-btn class="ma-2" elevation="2" color="error"
+                        @click="deleteUserDialogShow(item.nickname, item.userId)">踢出</v-btn>
+                      <v-btn class="ma-2" elevation="2" @click="blockUserDialogShow(item.nickname, item.userId)">拉黑
+                      </v-btn>
                     </tr>
-                    </tbody>
+                  </tbody>
                 </template>
               </v-simple-table>
             </v-col>
@@ -194,9 +186,10 @@
                     <tr v-for="item in ManagerList" :key="item.userId">
                       <td>{{ item.nickname }}</td>
                       <td>{{ item.userId }}</td>
-                      <v-btn class="ma-2" elevation="2" color="error" @click="deleteManagerDialogShow(item.nickname, item.userId)">取消</v-btn>
+                      <v-btn class="ma-2" elevation="2" color="error"
+                        @click="deleteManagerDialogShow(item.nickname, item.userId)">取消</v-btn>
                     </tr>
-                    </tbody>
+                  </tbody>
                 </template>
               </v-simple-table>
             </v-col>
@@ -225,9 +218,10 @@
                     <tr v-for="item in BlockList" :key="item.userId">
                       <td>{{ item.nickname }}</td>
                       <td>{{ item.userId }}</td>
-                      <v-btn class="ma-2" elevation="2" @click="unblockUserDialogShow(item.nickname, item.userId)">解除拉黑</v-btn>
+                      <v-btn class="ma-2" elevation="2" @click="unblockUserDialogShow(item.nickname, item.userId)">解除拉黑
+                      </v-btn>
                     </tr>
-                    </tbody>
+                  </tbody>
                 </template>
               </v-simple-table>
             </v-col>
@@ -254,7 +248,7 @@
                       <td>{{ item.logTime | formatDate }}</td>
                       <td>{{ item.logContent }}</td>
                     </tr>
-                    </tbody>
+                  </tbody>
                 </template>
               </v-simple-table>
             </v-col>
@@ -263,14 +257,9 @@
       </v-tabs>
     </v-container>
     <v-snackbar v-model="snackbar">
-        {{ text }}
+      {{ text }}
       <template v-slot:action="{ attrs }">
-        <v-btn
-          color="pink"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
+        <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
           Close
         </v-btn>
       </template>
@@ -279,493 +268,526 @@
 </template>
 
 <script>
-  import * as urlConfig from '@/api/urlConfig'
-  import eConfig from "electron-config"
-  import cookie from "cookie"
-  import got from "got"
-  import { remote, ipcRenderer  } from 'electron'
-  import { formatDate } from '@/utils/timeFormat'
-  const econfig = new eConfig();
+//不要问为什么全写这里，问就是懒，功能全做完再拆分。
+import * as urlConfig from '@/api/urlConfig'
+import eConfig from "electron-config"
+import cookie from "cookie"
+import got from "got"
+import { remote, ipcRenderer } from 'electron'
+import { formatDate } from '@/utils/timeFormat'
 
-  export default {
-    name: 'ACFunPanel',
-    data: () => ({
-      ipcRenderer: null,
-      snackbar: false,
-      text: `(/=-=)/`,
-      account: "",
-      password: "",
-      isLogin: false,
-      userName: "",
-      userId: "",
-      did: "",
-      midground: "",
-      loginCookies: {},
+const econfig = new eConfig()
+let Base64 = require('js-base64').Base64
 
-      roomID: 0,
-      LiveId: 0,
-      DanmakuList: [],
-      WatchingList: [],
-      ManagerList: [],
-      BlockList: [],
-      LogList: [],
-      fetchWatchingListTimer: 0,
-      fetchManagerListTimer: 0,
-      danmakuWindow: null,
-      danmakuText: "",
+export default {
+  name: 'ACFunPanel',
+  data: () => ({
+    ipcRenderer: null,
+    snackbar: false,
+    text: `(/=-=)/`,
+    account: "",
+    password: "",
+    isLogin: false,
+    userName: "",
+    userId: "",
+    did: "",
+    midground: "",
+    loginCookies: {},
 
-      deleteManagerDialog: false,
-      deleteManagerName: "",
-      deleteManagerId: 0,
-      
-      addManagerDialog: false,
-      addManagerName: "",
-      addManagerId: 0,
-      
-      deleteUserDialog: false,
-      deleteUserName: "",
-      deleteUserId: 0,
-      
-      blockUserDialog: false,
-      blockUserName: "",
-      blockUserId: 0,
-      
-      unblockUserDialog: false,
-      unblockUserName: "",
-      unblockUserId: 0,
-    }),
-    async created() {
-      await this.getDid()
-      this.getCookiesFromLogin()
-      this.syncSavedData()
-    },
-    filters: {
-      formatDate(time) {
-        let date = new Date(time)
-        return formatDate(date, 'yyyy-MM-dd hh:mm')
+    roomID: 0,
+    LiveId: 0,
+    DanmakuList: [],
+    WatchingList: [],
+    ManagerList: [],
+    BlockList: [],
+    LogList: [],
+    fetchWatchingListTimer: 0,
+    fetchManagerListTimer: 0,
+    danmakuWindow: null,
+    danmakuFrame: null,
+    danmakuText: "",
+
+    //弹窗
+    deleteManagerDialog: false,
+    deleteManagerName: "",
+    deleteManagerId: 0,
+
+    addManagerDialog: false,
+    addManagerName: "",
+    addManagerId: 0,
+
+    deleteUserDialog: false,
+    deleteUserName: "",
+    deleteUserId: 0,
+
+    blockUserDialog: false,
+    blockUserName: "",
+    blockUserId: 0,
+
+    unblockUserDialog: false,
+    unblockUserName: "",
+    unblockUserId: 0,
+  }),
+  async created() {
+    await this.getDid()
+    await this.getCookiesFromLogin()
+    this.syncSavedData()
+    if (this.isLogin) {
+      await this.getSt()
+    }
+  },
+  filters: {
+    formatDate(time) {
+      let date = new Date(time)
+      return formatDate(date, 'yyyy-MM-dd hh:mm')
+    }
+  },
+  watch: {
+    categoryId: {
+      handler(val) {
+        this.more = this.categoryMore[val]
       }
+    }
+  },
+  methods: {
+    onCopy: function () {
+      this.text = "复制成功"
+      this.snackbar = true
     },
-    methods:{
-      async loginToACFun(){
-        if(this.account !== "" && this.password !== ""){
-          const res = await got(urlConfig.DEFAULT_CONFIG.acfun_signin, {
-            method: "POST",
-            headers: {
-              Referer: "https://www.acfun.cn",
-            },
-            form: {
-              username: this.account,
-              password: this.password,
-            },
-          })
-          var resJson = JSON.parse(res.body)
-          if (resJson.result == 0) {
-            this.isLogin = true
-            this.userName = resJson.username
-            this.userId = resJson.userId
-            if(this.roomID == ""){
-              this.roomID = resJson.userId
-            }
-            this.loginCookies = res.headers["set-cookie"]
-            econfig.set("loginCookies", this.loginCookies)
-          }else{
-            this.text = resJson.error_msg
-            this.snackbar = true
-          }
-        }else{
-          this.text = "请好好输入A站用户名和密码"
-          this.snackbar = true
-        }
-      },
-      async getCookiesFromLogin(){
-        this.loginCookies = econfig.get("loginCookies")
-        const res = await got(urlConfig.DEFAULT_CONFIG.acfun_personalInfo, {
-          method: "GET",
-          headers: {
-            cookie: this.loginCookies,
-          },
-        })
-        var resJson = JSON.parse(res.body)
-        if(resJson.result == 0){
-          this.isLogin = true
-          this.userName = resJson.info.userName
-          this.userId = resJson.info.userId
-          var did = "_did=" + this.did
-          this.loginCookies.push(did)
-        }
-      },
-      async getDid(){
-        var res = await got(urlConfig.DEFAULT_CONFIG.acfun_login);
-        var did_cookie = cookie.parse(res.headers["set-cookie"][1]);
-        this.did = did_cookie._did
-      },
-      syncSavedData(){
-        this.roomID = econfig.get("roomID")
-        this.BlockList = econfig.get("blockList")
-        if(this.BlockList == undefined){
-          this.BlockList = []
-        }
-        this.LogList.unshift({
-          logTime: Date.now(),
-          logContent: "读取缓存内容完成"
-        })
-      },
-      async loadRoom(){
-        window.clearInterval(this.fetchWatchingListTimer)
-        window.clearInterval(this.fetchManagerListTimer)
-        this.WatchingList = []
-        this.ManagerList = []
-        econfig.set("roomID", this.roomID)
-        const res = await got(urlConfig.DEFAULT_CONFIG.acfun_tokenGet, {
+    async loginToACFun() {
+      if (this.account !== "" && this.password !== "") {
+        const res = await got(urlConfig.DEFAULT_CONFIG.acfun_signin, {
           method: "POST",
           headers: {
             Referer: "https://www.acfun.cn",
-            cookie: this.loginCookies,
           },
           form: {
-            sid: "acfun.midground.api",
+            username: this.account,
+            password: this.password,
           },
         })
         var resJson = JSON.parse(res.body)
-        if(resJson.result == 0){
-          this.midground = resJson["acfun.midground.api_st"]
-          const res = await got(urlConfig.DEFAULT_CONFIG.acfun_userInfo + this.roomID, {
-            method: "POST",
-            headers: {
-              Referer: "https://www.acfun.cn",
-              cookie: this.loginCookies,
-            },
-          })
-          var resJson = JSON.parse(res.body)
-          if(resJson.result == 0){
-            if(resJson.profile.liveId !== undefined){
-              this.LiveId = resJson.profile.liveId
-              this.LogList.unshift({
-                logTime: Date.now(),
-                logContent: "获取LiveID完成"
-              })
-              this.sendDanmaku("进入成功")
-              this.fetchWatchingListTimer = window.setInterval(this.fetchWatchingList, 1 * 1000)
-              this.fetchManagerListTimer = window.setInterval(this.fetchManagerList, 1 * 1000)
-            }else{
-              this.text = "房间暂未直播"
-              this.snackbar = true
-            }
-          }else{
-            this.text = resJson.error_msg
-            this.snackbar = true
+        if (resJson.result == 0) {
+          this.isLogin = true
+          this.userName = resJson.username
+          this.userId = resJson.userId
+          if (this.roomID == "") {
+            this.roomID = resJson.userId
           }
-        }else{
+          this.loginCookies = res.headers["set-cookie"]
+          econfig.set("loginCookies", this.loginCookies)
+        } else {
           this.text = resJson.error_msg
           this.snackbar = true
         }
-      },
-      async sendDanmaku(Danmaku){
-        if(this.LiveId != ""){
-          const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/audience/action/comment?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
-            method: "POST",
-            headers: {
-              Referer: "https://www.acfun.cn",
-              cookie: this.loginCookies,
-            },
-            form: {
-              visitorId: this.userId,
-              liveId: this.LiveId,
-              content: Danmaku
-            },
+      } else {
+        this.text = "请好好输入A站用户名和密码"
+        this.snackbar = true
+      }
+    },
+    async getCookiesFromLogin() {
+      this.loginCookies = econfig.get("loginCookies")
+      const res = await got(urlConfig.DEFAULT_CONFIG.acfun_personalInfo, {
+        method: "GET",
+        headers: {
+          cookie: this.loginCookies,
+        },
+      })
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 0) {
+        this.isLogin = true
+        this.userName = resJson.info.userName
+        this.userId = resJson.info.userId
+        var did = "_did=" + this.did
+        this.loginCookies.push(did)
+      }
+    },
+    async getDid() {
+      var res = await got(urlConfig.DEFAULT_CONFIG.acfun_login);
+      var did_cookie = cookie.parse(res.headers["set-cookie"][1]);
+      this.did = did_cookie._did
+    },
+    syncSavedData() {
+      this.roomID = econfig.get("roomID")
+      this.BlockList = econfig.get("blockList")
+      if (this.BlockList == undefined) {
+        this.BlockList = []
+      }
+      this.LogList.unshift({
+        logTime: Date.now(),
+        logContent: "读取缓存内容完成"
+      })
+    },
+    async postHTTPResult(url, referer, cookies, form) {
+      const res = await got(url, {
+        method: "POST",
+        headers: {
+          Referer: referer,
+          cookie: cookies,
+        },
+        form: form,
+      });
+      var resJson = JSON.parse(res.body);
+      return resJson;
+    },
+    async getHTTPResult(url, referer, cookies) {
+      const res = await got(url, {
+        method: "GET",
+        headers: {
+          Referer: referer,
+          cookie: cookies,
+        },
+      });
+      var resJson = JSON.parse(res.body);
+      return resJson;
+    },
+    async getSt() {
+      var resJson = await this.postHTTPResult(
+        urlConfig.DEFAULT_CONFIG.acfun_tokenGet,
+        "https://www.acfun.cn",
+        this.loginCookies,
+        {
+          sid: "acfun.midground.api",
+        }
+      )
+      if (resJson.result == 0) {
+        this.midground = resJson["acfun.midground.api_st"];
+      }
+    },
+    async loadRoom() {
+      window.clearInterval(this.fetchWatchingListTimer)
+      window.clearInterval(this.fetchManagerListTimer)
+      this.WatchingList = []
+      this.ManagerList = []
+      econfig.set("roomID", this.roomID)
+      var resJson = await this.postHTTPResult(
+        urlConfig.DEFAULT_CONFIG.acfun_userInfo + this.roomID,
+        "https://www.acfun.cn",
+        this.loginCookies,
+        {}
+      )
+      if (resJson.result == 0) {
+        if (resJson.profile.liveId !== undefined) {
+          this.LiveId = resJson.profile.liveId
+          this.LogList.unshift({
+            logTime: Date.now(),
+            logContent: "获取LiveID完成"
           })
-          var resJson = JSON.parse(res.body)
-          if(resJson.result == 1){
-            this.danmakuText = ""
-            this.LogList.unshift({
-              logTime: Date.now(),
-              logContent: "弹幕 " + Danmaku + " 发送成功"
-            })
-          }
-        }else{
-          this.text = "请先进入直播间"
+          this.sendDanmaku("进入成功")
+          this.fetchWatchingListTimer = window.setInterval(this.fetchWatchingList, 1 * 1000)
+          this.fetchManagerListTimer = window.setInterval(this.fetchManagerList, 1 * 1000)
+        } else {
+          this.text = "房间暂未直播"
           this.snackbar = true
         }
-      },  
-      async kickUser(userName, userId){
-        if(this.userId == this.roomID){
-          const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
-            method: "POST",
-            headers: {
-              Referer: "https://live.acfun.cn",
-              cookie: this.loginCookies,
-            },
-            form: {
-              visitorId: this.userId,
-              liveId: this.LiveId,
-              kickedUserId: userId,
-            },
-          })
-          var resJson = JSON.parse(res.body)
-          if(resJson.result == 1){
-            this.LogList.unshift({
-              logTime: Date.now(),
-              logContent: "主播账号踢人 " + userName + "(" + userId + ") 成功"
-            })
+      } else {
+        this.text = resJson.error_msg
+        this.snackbar = true
+      }
+    },
+    async sendDanmaku(Danmaku) {
+      if (this.LiveId != "") {
+        var resJson = await this.postHTTPResult(
+          "https://api.kuaishouzt.com/rest/zt/live/web/audience/action/comment?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground,
+          "https://www.acfun.cn",
+          this.loginCookies,
+          {
+            visitorId: this.userId,
+            liveId: this.LiveId,
+            content: Danmaku
           }
-        }else{
-          const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/manager/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
-            method: "POST",
-            headers: {
-              Referer: "https://live.acfun.cn",
-              cookie: this.loginCookies,
-            },
-            form: {
-              visitorId: this.userId,
-              liveId: this.LiveId,
-              kickedUserId: userId,
-            },
+        )
+        if (resJson.result == 1) {
+          this.danmakuText = ""
+          this.LogList.unshift({
+            logTime: Date.now(),
+            logContent: "弹幕 " + Danmaku + " 发送成功"
           })
-          var resJson = JSON.parse(res.body)
-          if(resJson.result == 1){
-            this.LogList.unshift({
-              logTime: Date.now(),
-              logContent: "房管账号踢人 " + userName + "(" + userId + ") 成功"
-            })
-          }
         }
-      },
-      leaveRoom(){
-        window.clearInterval(this.fetchWatchingListTimer)
-        window.clearInterval(this.fetchManagerListTimer)
-        this.WatchingList = []
-        this.ManagerList = []
-        this.LogList.unshift({
-          logTime: Date.now(),
-          logContent: "退出房间"
-        })
-      },
-      async fetchWatchingList(){
-        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/watchingList?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
+      } else {
+        this.text = "请先进入直播间"
+        this.snackbar = true
+      }
+    },
+    async kickUser(userName, userId) {
+      if (this.userId == this.roomID) {
+        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
           method: "POST",
           headers: {
-            Referer: "https://www.acfun.cn",
+            Referer: "https://live.acfun.cn",
             cookie: this.loginCookies,
           },
           form: {
             visitorId: this.userId,
             liveId: this.LiveId,
+            kickedUserId: userId,
           },
         })
         var resJson = JSON.parse(res.body)
-        if(resJson.result == 1){
-          for (let i = 0; i < resJson.data.list.length; i++) {
-            const element = resJson.data.list[i];
-            let result = this.WatchingList.find(c => Number(c.userId) === element.userId)
-            let blockResult = this.BlockList.find(c => Number(c.userId) === element.userId)
-            if(blockResult){
-              this.LogList.unshift({
-                logTime: Date.now(),
-                logContent: "检测到黑名单观众 " + element.nickname + "(" + element.userId + ")"
-              })
-              this.kickUser(element.nickname, element.userId)
-            }
-            if(!result && element.userId !== this.userId && element.anonymousUser == false){
-              this.WatchingList.push(element)
-            }
-          }
-          for (let i = 0; i < this.WatchingList.length; i++) {
-            const element = this.WatchingList[i];
-            let result = resJson.data.list.find(c => Number(c.userId) === element.userId)
-            if(!result){
-              this.WatchingList.splice(i, 1)
-            }
-          }
-        }
-      },
-      async fetchManagerList(){
-        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/manager/list?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground + "&visitorId=" + this.userId + "&liveId=", {
-          method: "POST",
-          headers: {
-            Referer: "https://member.acfun.cn",
-            cookie: this.loginCookies,
-          },
-          form: {
-          },
-        })
-        var resJson = JSON.parse(res.body)
-        if(resJson.result == 1){
-          for (let i = 0; i < resJson.data.list.length; i++) {
-            const element = resJson.data.list[i];
-            let result = this.ManagerList.find(c => Number(c.userId) === element.userId);
-            if(!result && element.userId !== this.userId){
-              this.ManagerList.push(element)
-            }
-          }
-          for (let i = 0; i < this.ManagerList.length; i++) {
-            const element = this.ManagerList[i];
-            let result = resJson.data.list.find(c => Number(c.userId) === element.userId);
-            if(!result){
-              this.ManagerList.splice(i, 1)
-            }
-          }
-        }
-      },
-      quitAccount(){
-        this.isLogin = false
-        this.loginCookies = {}
-        this.WatchingList = []
-        this.LogList = []
-        econfig.set("loginCookies", [])
-      },
-      async addManager(userName, ManagerId){
-        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/manager/add?kpn=ACFUN_APP&subBiz=mainApp&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground + "&visitorId=" + this.userId + "&managerUserId=" + ManagerId, {
-          method: "POST",
-          headers: {
-            Referer: "https://member.acfun.cn",
-            cookie: this.loginCookies,
-          },
-          form: {
-          },
-        })
-        var resJson = JSON.parse(res.body)
-        if(resJson.result == 1){
+        if (resJson.result == 1) {
           this.LogList.unshift({
             logTime: Date.now(),
-            logContent: "添加房管 " + userName + "(" + ManagerId + ") 成功"
+            logContent: "主播账号踢人 " + userName + "(" + userId + ") 成功"
           })
         }
-      },
-      async deleteManager(userName, ManagerId){
-        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/manager/delete?kpn=ACFUN_APP&subBiz=mainApp&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground + "&visitorId=" + this.userId + "&managerUserId=" + ManagerId, {
+      } else {
+        const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/manager/kick?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
           method: "POST",
           headers: {
-            Referer: "https://member.acfun.cn",
+            Referer: "https://live.acfun.cn",
             cookie: this.loginCookies,
           },
           form: {
+            visitorId: this.userId,
+            liveId: this.LiveId,
+            kickedUserId: userId,
           },
         })
         var resJson = JSON.parse(res.body)
-        if(resJson.result == 1){
+        if (resJson.result == 1) {
           this.LogList.unshift({
             logTime: Date.now(),
-            logContent: "移除房管 " + userName + "(" + ManagerId + ") 成功"
+            logContent: "房管账号踢人 " + userName + "(" + userId + ") 成功"
           })
         }
-      },
-      startDanmakuHime(){
-        if(this.danmakuWindow == null && this.roomID != null){
-          econfig.set("roomID", this.roomID)
-          const winUrl = process.env.NODE_ENV === 'development' ? `http://localhost:8080/#/danmakuHime` : `file://${__dirname}/index.html#danmakuHime`;
-          this.danmakuWindow = new remote.BrowserWindow({ 
-            titleBarStyle: 'hidden', 
-            frame: false, 
-            width: 400, 
-            height: 600, 
-            transparent: true,
-            webPreferences: {
-              webSecurity: false,
-              nodeIntegration: true,
-              enableRemoteModule: true,
-              webviewTag: true
-            }
-          })
-          //this.danmakuWindow.webContents.openDevTools()
-          this.danmakuWindow.on('closed', () => { this.danmakuWindow = null })
-          this.danmakuWindow.loadURL(winUrl)
-          this.danmakuWindow.setAlwaysOnTop(true);
+      }
+    },
+    leaveRoom() {
+      window.clearInterval(this.fetchWatchingListTimer)
+      window.clearInterval(this.fetchManagerListTimer)
+      this.WatchingList = []
+      this.ManagerList = []
+      this.LogList.unshift({
+        logTime: Date.now(),
+        logContent: "退出房间"
+      })
+    },
+    async fetchWatchingList() {
+      const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/watchingList?subBiz=mainApp&kpn=ACFUN_APP&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground, {
+        method: "POST",
+        headers: {
+          Referer: "https://www.acfun.cn",
+          cookie: this.loginCookies,
+        },
+        form: {
+          visitorId: this.userId,
+          liveId: this.LiveId,
+        },
+      })
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 1) {
+        for (let i = 0; i < resJson.data.list.length; i++) {
+          const element = resJson.data.list[i];
+          let result = this.WatchingList.find(c => Number(c.userId) === element.userId)
+          let blockResult = this.BlockList.find(c => Number(c.userId) === element.userId)
+          if (blockResult) {
+            this.LogList.unshift({
+              logTime: Date.now(),
+              logContent: "检测到黑名单观众 " + element.nickname + "(" + element.userId + ")"
+            })
+            this.kickUser(element.nickname, element.userId)
+          }
+          if (!result && element.userId !== this.userId && element.anonymousUser == false) {
+            this.WatchingList.push(element)
+          }
         }
-      },
-      stopDanmakuHime(){
-        if(this.danmakuWindow != null){
-          this.danmakuWindow.close()
-          this.danmakuWindow = null
+        for (let i = 0; i < this.WatchingList.length; i++) {
+          const element = this.WatchingList[i];
+          let result = resJson.data.list.find(c => Number(c.userId) === element.userId)
+          if (!result) {
+            this.WatchingList.splice(i, 1)
+          }
         }
-      },
-      addManagerDialogShow(addManagerName, addManagerId){
-        this.addManagerName = addManagerName
-        this.addManagerId = addManagerId
-        this.addManagerDialog = true
-      },
-      async addManagerDialogStart(){
-        this.addManagerDialog = false
-        await this.addManager(this.addManagerName, this.addManagerId)
-        this.addManagerName = ""
-        this.addManagerId = 0
-      },
-      addManagerDialogClose(){
-        this.addManagerDialog = false
-        this.addManagerName = ""
-        this.addManagerId = 0
-      },
-      deleteManagerDialogShow(deleteManagerName, deleteManagerId){
-        this.deleteManagerName = deleteManagerName
-        this.deleteManagerId = deleteManagerId
-        this.deleteManagerDialog = true
-      },
-      async deleteManagerDialogStart(){
-        this.deleteManagerDialog = false
-        await this.deleteManager(this.deleteManagerName, this.deleteManagerId)
-        this.deleteManagerName = ""
-        this.deleteManagerId = 0
-      },
-      deleteManagerDialogClose(){
-        this.deleteManagerDialog = false
-        this.deleteManagerName = ""
-        this.deleteManagerId = 0
-      },
-      deleteUserDialogShow(deleteUserName, deleteUserId){
-        this.deleteUserName = deleteUserName
-        this.deleteUserId = deleteUserId
-        this.deleteUserDialog = true
-      },
-      async deleteUserDialogStart(){
-        this.deleteUserDialog = false
-        await this.kickUser(this.deleteUserName, this.deleteUserId)
-        this.deleteUserName = ""
-        this.deleteUserId = 0
-      },
-      deleteUserDialogClose(){
-        this.deleteUserDialog = false
-        this.deleteUserName = ""
-        this.deleteUserId = 0
-      },
-      blockUserDialogShow(blockUserName, blockUserId){
-        this.blockUserName = blockUserName
-        this.blockUserId = blockUserId
-        this.blockUserDialog = true
-      },
-      blockUserDialogStart(){
-        this.blockUserDialog = false
-        this.BlockList.unshift({
-          nickname: this.blockUserName,
-          userId: this.blockUserId,
+      }
+    },
+    async fetchManagerList() {
+      const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/manager/list?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground + "&visitorId=" + this.userId + "&liveId=", {
+        method: "POST",
+        headers: {
+          Referer: "https://member.acfun.cn",
+          cookie: this.loginCookies,
+        },
+        form: {
+        },
+      })
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 1) {
+        for (let i = 0; i < resJson.data.list.length; i++) {
+          const element = resJson.data.list[i];
+          let result = this.ManagerList.find(c => Number(c.userId) === element.userId);
+          if (!result && element.userId !== this.userId) {
+            this.ManagerList.push(element)
+          }
+        }
+        for (let i = 0; i < this.ManagerList.length; i++) {
+          const element = this.ManagerList[i];
+          let result = resJson.data.list.find(c => Number(c.userId) === element.userId);
+          if (!result) {
+            this.ManagerList.splice(i, 1)
+          }
+        }
+      }
+    },
+    quitAccount() {
+      this.isLogin = false
+      this.loginCookies = {}
+      this.WatchingList = []
+      this.LogList = []
+      econfig.set("loginCookies", [])
+    },
+    async addManager(userName, ManagerId) {
+      const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/manager/add?kpn=ACFUN_APP&subBiz=mainApp&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground + "&visitorId=" + this.userId + "&managerUserId=" + ManagerId, {
+        method: "POST",
+        headers: {
+          Referer: "https://member.acfun.cn",
+          cookie: this.loginCookies,
+        },
+        form: {
+        },
+      })
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 1) {
+        this.LogList.unshift({
+          logTime: Date.now(),
+          logContent: "添加房管 " + userName + "(" + ManagerId + ") 成功"
         })
-        econfig.set("blockList", this.BlockList)
-        this.blockUserName = ""
-        this.blockUserId = 0
-      },
-      blockUserDialogClose(){
-        this.blockUserDialog = false
-        this.blockUserName = ""
-        this.blockUserId = 0
-      },
-      unblockUserDialogShow(unblockUserName, unblockUserId){
-        this.unblockUserName = unblockUserName
-        this.unblockUserId = unblockUserId
-        this.unblockUserDialog = true
-      },
-      unblockUserDialogStart(){
-        this.unblockUserDialog = false
-        let result = this.BlockList.find(c => Number(c.userId) === this.unblockUserId)
-        if(result){
-          this.BlockList.splice(result, 1)
-        }
-        econfig.set("blockList", this.BlockList)
-        this.unblockUserName = ""
-        this.unblockUserId = 0
-      },
-      unblockUserDialogClose(){
-        this.unblockUserDialog = false
-        this.unblockUserName = ""
-        this.unblockUserId = 0
-      },
-    } 
+      }
+    },
+    async deleteManager(userName, ManagerId) {
+      const res = await got("https://api.kuaishouzt.com/rest/zt/live/web/author/action/manager/delete?kpn=ACFUN_APP&subBiz=mainApp&kpf=PC_WEB&userId=" + this.userId + "&did=" + this.did + "&acfun.midground.api_st=" + this.midground + "&visitorId=" + this.userId + "&managerUserId=" + ManagerId, {
+        method: "POST",
+        headers: {
+          Referer: "https://member.acfun.cn",
+          cookie: this.loginCookies,
+        },
+        form: {
+        },
+      })
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 1) {
+        this.LogList.unshift({
+          logTime: Date.now(),
+          logContent: "移除房管 " + userName + "(" + ManagerId + ") 成功"
+        })
+      }
+    },
+    startDanmakuHime() {
+      if (this.danmakuWindow == null && this.roomID != null) {
+        econfig.set("roomID", this.roomID)
+        const winUrl = process.env.NODE_ENV === 'development' ? `http://localhost:8080/#/danmakuHime` : `file://${__dirname}/index.html#danmakuHime`;
+        this.danmakuWindow = new remote.BrowserWindow({
+          titleBarStyle: 'hidden',
+          frame: false,
+          width: 400,
+          height: 600,
+          transparent: true,
+          webPreferences: {
+            webSecurity: false,
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            webviewTag: true
+          }
+        })
+        //this.danmakuWindow.webContents.openDevTools()
+        this.danmakuWindow.on('closed', () => { this.danmakuWindow = null })
+        this.danmakuWindow.loadURL(winUrl)
+        this.danmakuWindow.setAlwaysOnTop(true);
+      }
+    },
+    stopDanmakuHime() {
+      if (this.danmakuWindow != null) {
+        this.danmakuWindow.close()
+        this.danmakuWindow = null
+      }
+    },
+    addManagerDialogShow(addManagerName, addManagerId) {
+      this.addManagerName = addManagerName
+      this.addManagerId = addManagerId
+      this.addManagerDialog = true
+    },
+    async addManagerDialogStart() {
+      this.addManagerDialog = false
+      await this.addManager(this.addManagerName, this.addManagerId)
+      this.addManagerName = ""
+      this.addManagerId = 0
+    },
+    addManagerDialogClose() {
+      this.addManagerDialog = false
+      this.addManagerName = ""
+      this.addManagerId = 0
+    },
+    deleteManagerDialogShow(deleteManagerName, deleteManagerId) {
+      this.deleteManagerName = deleteManagerName
+      this.deleteManagerId = deleteManagerId
+      this.deleteManagerDialog = true
+    },
+    async deleteManagerDialogStart() {
+      this.deleteManagerDialog = false
+      await this.deleteManager(this.deleteManagerName, this.deleteManagerId)
+      this.deleteManagerName = ""
+      this.deleteManagerId = 0
+    },
+    deleteManagerDialogClose() {
+      this.deleteManagerDialog = false
+      this.deleteManagerName = ""
+      this.deleteManagerId = 0
+    },
+    deleteUserDialogShow(deleteUserName, deleteUserId) {
+      this.deleteUserName = deleteUserName
+      this.deleteUserId = deleteUserId
+      this.deleteUserDialog = true
+    },
+    async deleteUserDialogStart() {
+      this.deleteUserDialog = false
+      await this.kickUser(this.deleteUserName, this.deleteUserId)
+      this.deleteUserName = ""
+      this.deleteUserId = 0
+    },
+    deleteUserDialogClose() {
+      this.deleteUserDialog = false
+      this.deleteUserName = ""
+      this.deleteUserId = 0
+    },
+    blockUserDialogShow(blockUserName, blockUserId) {
+      this.blockUserName = blockUserName
+      this.blockUserId = blockUserId
+      this.blockUserDialog = true
+    },
+    blockUserDialogStart() {
+      this.blockUserDialog = false
+      this.BlockList.unshift({
+        nickname: this.blockUserName,
+        userId: this.blockUserId,
+      })
+      econfig.set("blockList", this.BlockList)
+      this.blockUserName = ""
+      this.blockUserId = 0
+    },
+    blockUserDialogClose() {
+      this.blockUserDialog = false
+      this.blockUserName = ""
+      this.blockUserId = 0
+    },
+    unblockUserDialogShow(unblockUserName, unblockUserId) {
+      this.unblockUserName = unblockUserName
+      this.unblockUserId = unblockUserId
+      this.unblockUserDialog = true
+    },
+    unblockUserDialogStart() {
+      this.unblockUserDialog = false
+      let result = this.BlockList.find(c => Number(c.userId) === this.unblockUserId)
+      if (result) {
+        this.BlockList.splice(result, 1)
+      }
+      econfig.set("blockList", this.BlockList)
+      this.unblockUserName = ""
+      this.unblockUserId = 0
+    },
+    unblockUserDialogClose() {
+      this.unblockUserDialog = false
+      this.unblockUserName = ""
+      this.unblockUserId = 0
+    },
   }
+}
 </script>

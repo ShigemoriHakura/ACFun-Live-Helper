@@ -4,7 +4,8 @@ module.exports = {
   ],
   pluginOptions: {
     electronBuilder: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false
     }
   }
 }
