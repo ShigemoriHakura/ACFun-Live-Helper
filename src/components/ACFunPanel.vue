@@ -246,6 +246,7 @@ export default {
       if (liveId) {
         this.$store.state.roomInfo.liveId = liveId
         this.$ACFunCommon.saveNewData(this)
+        await this.sendDanmaku("进入成功")
         this.fetchWatchingListTimer = window.setInterval(this.fetchWatchingList, 1 * 1000)
         if (this.$store.state.config.roomId == this.$store.state.ACFunCommon.userId) {
           this.fetchManagerListTimer = window.setInterval(this.fetchManagerList, 1 * 1000)
@@ -263,7 +264,6 @@ export default {
       if (resJson.result == 0) {
         if (resJson.profile.liveId !== undefined) {
           this.$store.commit('addLog', "获取LiveID完成")
-          this.sendDanmaku("进入成功")
           return resJson.profile.liveId
         } else {
           this.$store.state.snackbar.text = "房间暂未直播"
