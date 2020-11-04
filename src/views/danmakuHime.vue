@@ -36,7 +36,7 @@ export default {
   methods: {
     async loadPage(url) {
       console.log("Loading " + url);
-      var webview = document.getElementById('browserView');
+      var webview = document.getElementById('browserView')
       const res = await got("https://danmaku.loli.ren/danmakuStyle.css", {
         method: "GET",
       })

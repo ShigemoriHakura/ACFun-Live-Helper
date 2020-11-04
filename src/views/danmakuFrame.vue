@@ -19,8 +19,10 @@
 </template>
 
 <script>
+import eConfig from "electron-config"
 import { remote } from 'electron'
 
+const econfig = new eConfig()
 export default {
   data: () => ({
     danmakuText: "",
@@ -50,16 +52,32 @@ export default {
         var resJson = JSON.parse(res.body)
         if (resJson.result == 1) {
           this.danmakuText = ""
-          this.$store.commit('addLog', "弹幕 " + Danmaku + " 发送成功")
-        } else {
-          this.$store.commit('addLog', "弹幕 " + Danmaku + " 发送失败（" + resJson.error_msg + "）")
-          this.$store.state.snackbar.text = resJson.error_msg
+          this.$store.state.snackbar.text = "发送成功"
           this.$store.state.snackbar.show = true
+          return
+        } else {
+          this.$store.state.snackbar.text = "发送失败（" + resJson.error_msg + "）"
+          this.$store.state.snackbar.show = true
+          return
         }
       } else {
-        this.$store.state.snackbar.text = "请先进入直播间"
-        this.$store.state.snackbar.show = true
+        var res = await this.$ACFunCommon.postHTTPResult(
+          "https://live.acfun.cn/rest/pc-direct/user/userInfo?userId=" + econfig.get("config.roomId"),
+          "https://www.acfun.cn",
+          this.$store.state.ACFunCommon.acfunCookies,
+          {}
+        )
+        var resJson = JSON.parse(res.body)
+        if (resJson.result == 0) {
+          if (resJson.profile.liveId !== undefined) {
+            this.$store.state.roomInfo.liveId = resJson.profile.liveId
+            this.sendDanmaku(Danmaku)
+            return
+          }
+        }
       }
+      this.$store.state.snackbar.text = "发送失败，请重试"
+      this.$store.state.snackbar.show = true
     },
   }
 }

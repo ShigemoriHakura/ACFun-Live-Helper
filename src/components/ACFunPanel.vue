@@ -240,8 +240,11 @@ export default {
       this.dialogAction = ""
     },
     async loadRoom() {
+      window.clearInterval(this.fetchWatchingListTimer)
+      window.clearInterval(this.fetchManagerListTimer)
       var liveId = await this.getLiveId(this.$store.state.config.roomId)
       if (liveId) {
+        this.$store.state.roomInfo.liveId = liveId
         this.$ACFunCommon.saveNewData(this)
         this.fetchWatchingListTimer = window.setInterval(this.fetchWatchingList, 1 * 1000)
         if (this.$store.state.config.roomId == this.$store.state.ACFunCommon.userId) {
@@ -269,7 +272,6 @@ export default {
       if (resJson.result == 0) {
         if (resJson.profile.liveId !== undefined) {
           this.$store.commit('addLog', "获取LiveID完成")
-          this.$store.state.roomInfo.liveId = resJson.profile.liveId
           this.sendDanmaku("进入成功")
           return resJson.profile.liveId
         } else {

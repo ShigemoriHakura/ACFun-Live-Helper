@@ -41,7 +41,7 @@ export default {
   //全部数据保存
   saveNewData(that) {
     //保存的房间ID，房管用
-    econfig.get("config.roomId", that.$store.state.config.roomId)
+    econfig.set("config.roomId", that.$store.state.config.roomId)
 
     //保存存储的cookies
     econfig.set("ACFunCommon.acfunCookies", that.$store.state.ACFunCommon.acfunCookies)
