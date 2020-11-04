@@ -101,16 +101,29 @@ export default {
     this.concreteId = this.$store.state.liveInfo.liveConcreteId
 
     await this.getLiveStatus()
-    if (!this.$store.state.liveInfo.isLive) {
+    if (this.$store.state.config.isLogin && !this.$store.state.liveInfo.isLive) {
       await this.getLiveType()
       await this.getLiveKey()
     }
 
     this.$store.watch((state) => state.liveInfo.isLive, async (newValue, oldValue) => {
-      console.log('直播状态变更：' + oldValue + ' -> ' + newValue)
+      console.log('直播组件：直播状态变更：' + oldValue + ' -> ' + newValue)
       if (!newValue) {
         await this.getLiveType()
         await this.getLiveKey()
+      }
+    }).bind(this)
+
+    this.$store.watch((state) => state.config.isLogin, async (newValue, oldValue) => {
+      console.log('直播组件：登录变更：' + oldValue + ' -> ' + newValue)
+      if (newValue) {
+        await this.getLiveStatus()
+        if (!this.$store.state.liveInfo.isLive) {
+          await this.getLiveType()
+          await this.getLiveKey()
+        } else {
+          console.log('账号已经开播，无视')
+        }
       }
     }).bind(this)
 

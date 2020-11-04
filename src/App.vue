@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <v-navigation-drawer v-if="$route.meta.navShow" permanent expand-on-hover app>
       <v-list nav>
-        <v-list-item v-for="item in items" :key="item.title" :to="item.link" link>
+        <v-list-item v-for="item in items" :key="item.title" :to="item.link" link v-show="getIsShow(item.needIsLogin)">
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -41,11 +41,11 @@ export default {
   data() {
     return {
       items: [
-        { title: '弹幕助手', icon: 'mdi-view-dashboard', link: '/' },
-        { title: '直播开播', icon: 'mdi-remote', link: '/live' },
-        { title: '账号信息', icon: 'mdi-account-box', link: '/account' },
-        { title: '日志', icon: 'mdi-history', link: '/log' },
-        { title: '关于', icon: 'mdi-help-box', link: '/about' },
+        { title: '账号信息', icon: 'mdi-account-box', link: '/account', needIsLogin: false },
+        { title: '弹幕助手', icon: 'mdi-view-dashboard', link: '/', needIsLogin: true },
+        { title: '直播开播', icon: 'mdi-remote', link: '/live', needIsLogin: true },
+        { title: '日志', icon: 'mdi-history', link: '/log', needIsLogin: false },
+        { title: '关于', icon: 'mdi-help-box', link: '/about', needIsLogin: false },
       ],
       right: null,
     }
@@ -71,6 +71,16 @@ export default {
       this.$store.state.config.isLogin = true
     }
   },
+  methods: {
+    getIsShow(status) {
+      if (status && this.$store.state.config.isLogin) {
+        return true
+      } else if (!status) {
+        return true
+      }
+      return false
+    }
+  }
 }
 
 
