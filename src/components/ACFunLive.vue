@@ -314,14 +314,15 @@ export default {
       }
     },
     async stopPush() {
-      var resJson = await this.postHTTPResult(
-        "https://api.kuaishouzt.com/rest/zt/live/web/obs/stopPush?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.config.userId + "&acfun.midground.api_st=" + this.config.midground,
+      var res = await this.$ACFunCommon.postHTTPResult(
+        "https://api.kuaishouzt.com/rest/zt/live/web/obs/stopPush?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.$store.state.ACFunCommon.userId + "&acfun.midground.api_st=" + this.$store.state.ACFunCommon.acfunST,
         "https://member.acfun.cn",
         this.$store.state.ACFunCommon.acfunCookies,
         {
           liveId: this.$store.state.liveInfo.liveId
         }
       )
+      var resJson = JSON.parse(res.body)
       if (resJson.result == 1) {
         this.$store.state.liveInfo.isLive = false
       } else {
