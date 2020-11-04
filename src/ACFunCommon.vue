@@ -1,0 +1,157 @@
+<script>
+import eConfig from "electron-config"
+import cookie from "cookie"
+import got from "got"
+import axios from 'axios'
+
+const econfig = new eConfig()
+const UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"
+let Base64 = require('js-base64').Base64
+
+//主业务逻辑，处理全局登录等属性。
+export default {
+  //存储区逻辑
+  //同步存储数据，经典的this和that！
+  getSavedData(that) {
+    //获取的房间ID，房管用
+    that.$store.state.config.roomId = econfig.get("config.roomId")
+
+    //获取存储的cookies
+    that.$store.state.ACFunCommon.acfunCookies = econfig.get("ACFunCommon.acfunCookies")
+
+    //获取房间的拉黑列表
+    var blockList = econfig.get("roomInfo.blockList")
+    //判断拉黑列表的情况
+    if (blockList !== undefined) {
+      that.$store.state.roomInfo.blockList = blockList
+    }
+
+    //获取存储的直播分区和子分区，直播标题，直播封面
+    var liveCover = econfig.get("liveInfo.liveCover")
+    that.$store.state.liveInfo.liveTitle = econfig.get("liveInfo.liveTitle")
+    that.$store.state.liveInfo.liveCategoryId = econfig.get("liveInfo.liveCategoryId")
+    that.$store.state.liveInfo.liveConcreteId = econfig.get("liveInfo.liveConcreteId")
+    //判断存储的封面情况
+    if (liveCover !== undefined) {
+      that.$store.state.liveInfo.liveCover = liveCover
+    }
+
+    that.$store.commit('addLog', "读取缓存内容完成")
+  },
+  //全部数据保存
+  saveNewData(that) {
+    //保存的房间ID，房管用
+    econfig.get("config.roomId", that.$store.state.config.roomId)
+
+    //保存存储的cookies
+    econfig.set("ACFunCommon.acfunCookies", that.$store.state.ACFunCommon.acfunCookies)
+
+    //保存房间的拉黑列表
+    econfig.set("roomInfo.blockList", that.$store.state.roomInfo.blockList)
+
+    //保存存储的直播分区和子分区，直播标题，直播封面
+    econfig.set("liveInfo.liveCover", that.$store.state.liveInfo.liveCover)
+    econfig.set("liveInfo.liveTitle", that.$store.state.liveInfo.liveTitle)
+    econfig.set("liveInfo.liveCategoryId", that.$store.state.liveInfo.liveCategoryId)
+    econfig.set("liveInfo.liveConcreteId", that.$store.state.liveInfo.liveConcreteId)
+
+    that.$store.commit('addLog', "保存缓存内容完成")
+  },
+
+  //刷新登录区逻辑
+  async getLoginDataFromCookies(that) {
+    const res = await this.getHTTPResult(
+      "https://api-new.app.acfun.cn/rest/app/user/personalInfo",
+      "",
+      that.$store.state.ACFunCommon.acfunCookies
+    )
+    var resJson = JSON.parse(res.body)
+    if (resJson.result == 0) {
+      that.$store.state.config.isLogin = true
+      that.$store.state.ACFunCommon.userName = resJson.info.userName
+      that.$store.state.ACFunCommon.userId = resJson.info.userId
+      var did = "_did=" + that.$store.state.ACFunCommon.acfunDid
+      that.$store.state.ACFunCommon.acfunCookies.push(did)
+      if (that.$store.state.config.roomId == "") {
+        that.$store.state.config.roomId = resJson.info.userId
+      }
+      await this.getSt(that)
+    } else {
+      that.$store.state.config.isLogin = false
+    }
+  },
+  async getDid(that) {
+    const res = await this.getHTTPResult(
+      "https://www.acfun.cn/login",
+      "",
+      that.$store.state.ACFunCommon.acfunCookies
+    )
+    var did_cookie = cookie.parse(res.headers["set-cookie"][1]);
+    that.$store.state.ACFunCommon.acfunDid = did_cookie._did
+  },
+  async getSt(that) {
+    var res = await this.postHTTPResult(
+      "https://id.app.acfun.cn/rest/web/token/get",
+      "https://www.acfun.cn",
+      that.$store.state.ACFunCommon.acfunCookies,
+      {
+        sid: "acfun.midground.api",
+      }
+    )
+    var resJson = JSON.parse(res.body)
+    if (resJson.result == 0) {
+      that.$store.state.ACFunCommon.acfunST = resJson["acfun.midground.api_st"];
+    }
+  },
+
+  //不同请求有不同的referer和ua需求，这里统一封装方法。因为formdata有点问题所以多一个RawBody（Buffer）的方法
+  async postHTTPResult(url, referer, cookies, form) {
+    try {
+      const res = await got(url, {
+        method: "POST",
+        headers: {
+          Referer: referer,
+          cookie: cookies,
+          "user-agent": UserAgent,
+        },
+        form: form,
+      })
+      return res
+    } catch (error) {
+      return error.response
+    }
+  },
+  async postHTTPRawBody(url, referer, cookies, contentType, body) {
+    try {
+      const res = await got(url, {
+        method: "POST",
+        headers: {
+          Referer: referer,
+          cookie: cookies,
+          "content-type": contentType,
+          "user-agent": UserAgent,
+        },
+        body: body,
+      })
+      return res
+    } catch (error) {
+      return error.response
+    }
+  },
+  async getHTTPResult(url, referer, cookies) {
+    try {
+      const res = await got(url, {
+        method: "GET",
+        headers: {
+          Referer: referer,
+          cookie: cookies,
+          "user-agent": UserAgent,
+        },
+      })
+      return res
+    } catch (error) {
+      return error.response
+    }
+  },
+}
+</script>

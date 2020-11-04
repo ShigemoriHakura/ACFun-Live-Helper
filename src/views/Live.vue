@@ -1,6 +1,6 @@
 <template>
   <div class="live">
-    <ACFunLive/>
+    <ACFunLive />
   </div>
 </template>
 

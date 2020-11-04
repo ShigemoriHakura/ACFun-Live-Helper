@@ -1,6 +1,6 @@
 {
   "name": "aclivehelper",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "author": "Hakura",
   "description": "A helper for acfun live",
   "private": true,
@@ -25,7 +25,8 @@
     "vue-clipboard2": "^0.3.1",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",
-    "vuetify-image-input": "^19.1.0"
+    "vuetify-image-input": "^19.1.0",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",

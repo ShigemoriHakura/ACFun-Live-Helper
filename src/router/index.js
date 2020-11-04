@@ -10,7 +10,7 @@ const routes = [
     name: 'Home',
     component: Home,
     meta: { navShow: true, }
-    
+
   },
   {
     path: '/live',
@@ -23,6 +23,24 @@ const routes = [
     name: 'danmakuHime',
     component: () => import('../views/danmakuHime.vue'),
     meta: { navShow: false, }
+  },
+  {
+    path: '/danmakuFrame',
+    name: 'danmakuFrame',
+    component: () => import('../views/danmakuFrame.vue'),
+    meta: { navShow: false, }
+  },
+  {
+    path: '/account',
+    name: 'Account',
+    component: () => import('../views/Account.vue'),
+    meta: { navShow: true, }
+  },
+  {
+    path: '/log',
+    name: 'Log',
+    component: () => import('../views/Log.vue'),
+    meta: { navShow: true, }
   },
   {
     path: '/about',
