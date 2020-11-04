@@ -39,12 +39,11 @@
               <v-col cols="12" md="12">
                 上传封面：
                 <v-image-input style="
-                transform: scale(0.87);
-                transform-origin: left top;
-                height: 700px;
-                width: 1200px;
+                height: 756px!important;
+                width: 1180px!important;
+                overflow: unset;
               " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
-                  :imageHeight="608" :imageWidth="1024" :fullWidth="true" :hideActions="false" />
+                  :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
               </v-col>
             </v-row>
           </v-tab-item>
@@ -54,6 +53,17 @@
         <v-row>
           <v-col cols="12" md="12">
             <v-btn class="ma-2" elevation="2" color="error" @click="stopPush">关闭直播</v-btn>
+            <v-btn class="ma-2" elevation="2" color="warning" @click="changeCoverAndTitle">修改封面和标题</v-btn>
+          </v-col>
+          <v-col cols="12" md="12">
+            <v-text-field v-model="$store.state.liveInfo.liveTitle" type="text" label="直播标题"></v-text-field>
+            上传封面：
+            <v-image-input style="
+                height: 756px!important;
+                width: 1180px!important;
+                overflow: unset;
+              " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
+              :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
           </v-col>
         </v-row>
       </v-container>
@@ -308,6 +318,55 @@ export default {
       if (resJson.result == 1) {
         this.$store.state.liveInfo.isLive = true
         this.$store.state.liveInfo.liveId = resJson.data.liveId
+      } else {
+        this.$store.state.snackbar.text = resJson.error_msg
+        this.$store.state.snackbar.show = true
+      }
+    },
+    async changeCoverAndTitle() {
+      this.$ACFunCommon.saveNewData(this)
+      var boundary = "----WebKitFormBoundary" + window.btoa(Math.random().toString()).substr(0, 16)
+
+      var resultBefore =
+        "--" + boundary + "\r\n" +
+        'Content-Disposition: form-data; name="caption"; \r\n' +
+        "\r\n" + this.$store.state.liveInfo.liveTitle + "\r\n" +
+
+        "--" + boundary + "\r\n" +
+        'Content-Disposition: form-data; name="liveId"; \r\n' +
+        "\r\n" + this.$store.state.liveInfo.liveId + "\r\n" +
+
+        "--" + boundary + "\r\n" +
+        'Content-Disposition: form-data; name="cover"; filename="cover.jpeg"\r\n' +
+        "Content-Type: image/jpeg\r\n\r\n"
+
+      var buf1 = Buffer.from(resultBefore, 'utf8')
+
+      var buf2 = this.convertBase64UrlToUint8Array(this.$store.state.liveInfo.liveCover)
+
+      var resultAfter =
+        "\r\n" +
+        "--" + boundary + "--\r\n"
+
+      var buf3 = Buffer.from(resultAfter, 'utf8')
+
+      var totalLength = buf1.length + buf2.length + buf3.length;
+      var bufDone = Buffer.concat([buf1, buf2, buf3], totalLength);
+
+      var res = await this.$ACFunCommon.postHTTPRawBody(
+        "https://api.kuaishouzt.com/rest/zt/live/web/changeCover?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" +
+        this.$store.state.ACFunCommon.userId +
+        "&acfun.midground.api_st=" +
+        this.$store.state.ACFunCommon.acfunST,
+        "https://member.acfun.cn",
+        this.$store.state.ACFunCommon.acfunCookies,
+        "multipart/form-data; boundary=" + boundary,
+        bufDone
+      )
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 1) {
+        this.$store.state.snackbar.text = "提交成功"
+        this.$store.state.snackbar.show = true
       } else {
         this.$store.state.snackbar.text = resJson.error_msg
         this.$store.state.snackbar.show = true

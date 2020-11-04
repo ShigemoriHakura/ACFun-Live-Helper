@@ -13,6 +13,7 @@
 ![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
 
 ## 更新日志
+* 0.2.3 加入直播标题和封面修改（独家！我先找到的接口！）。
 * 0.2.2 修复关闭直播的bug。
 * 0.2.1 全部重构！业务逻辑重新优化。
 
