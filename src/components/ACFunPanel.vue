@@ -253,15 +253,6 @@ export default {
       }
     },
     async getLiveId(roomId) {
-      if (roomId == this.$store.state.ACFunCommon.userId) {
-        if (this.$store.state.liveInfo.isLive) {
-          return this.$store.state.liveInfo.liveId
-        } else {
-          this.$store.state.snackbar.text = "房间暂未直播"
-          this.$store.state.snackbar.show = true
-          return false
-        }
-      }
       var res = await this.$ACFunCommon.postHTTPResult(
         "https://live.acfun.cn/rest/pc-direct/user/userInfo?userId=" + roomId,
         "https://www.acfun.cn",
