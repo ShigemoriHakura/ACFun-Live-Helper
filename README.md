@@ -8,6 +8,8 @@
 * 弹幕透明浏览器显示
 * 弹幕发送
 * 弹幕发送置顶窗
+* 直播开关播
+* 开播时封面和标题修改
 
 ## 截图
 ![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
