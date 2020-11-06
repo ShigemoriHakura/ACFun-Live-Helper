@@ -13,9 +13,6 @@ export default {
   //存储区逻辑
   //同步存储数据，经典的this和that！
   getSavedData(that) {
-    //获取的房间ID，房管用
-    that.$store.state.config.roomId = econfig.get("config.roomId")
-
     //获取存储的cookies
     that.$store.state.ACFunCommon.acfunCookies = econfig.get("ACFunCommon.acfunCookies")
 
@@ -38,10 +35,11 @@ export default {
 
     that.$store.commit('addLog', "读取缓存内容完成")
   },
+
   //全部数据保存
   saveNewData(that) {
-    //保存的房间ID，房管用
-    econfig.set("config.roomId", that.$store.state.config.roomId)
+    //保存的房间ID，弹幕显示用
+    econfig.set("config.roomId", that.$store.state.ACFunCommon.userId)
 
     //保存存储的cookies
     econfig.set("ACFunCommon.acfunCookies", that.$store.state.ACFunCommon.acfunCookies)
@@ -72,9 +70,6 @@ export default {
       that.$store.state.ACFunCommon.userId = resJson.info.userId
       var did = "_did=" + that.$store.state.ACFunCommon.acfunDid
       that.$store.state.ACFunCommon.acfunCookies.push(did)
-      if (that.$store.state.config.roomId == "") {
-        that.$store.state.config.roomId = resJson.info.userId
-      }
       await this.getSt(that)
     } else {
       that.$store.state.config.isLogin = false

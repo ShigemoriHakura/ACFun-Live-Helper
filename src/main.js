@@ -18,14 +18,13 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.4"
+Vue.prototype.$version = "0.2.5"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
   state: {
     config: {
       isLogin: false,
-      roomId: "",
     },
     ACFunCommon: {
       userName: "",
@@ -35,13 +34,16 @@ const store = new Vuex.Store({
       acfunST: "",
     },
     roomInfo: {
+      isLive: false,
       watchingList: [],
       managerList: [],
       blockList: [],
+      danmakuList: [],
       liveId: "",
     },
     liveInfo: {
       isLive: false,
+      useLiveTransfer: false,
       liveCover: null,
       liveTitle: "",
       liveCategoryId: 0,

@@ -146,7 +146,7 @@ export default {
       this.$store.state.snackbar.show = true
     },
     async getLiveStatus() {
-      if (this.$store.state.config.isLogin) {
+      if (this.$store.state.config.isLogin && this.$store.state.ACFunCommon.acfunST != "") {
         var res = await this.$ACFunCommon.postHTTPResult(
           "https://api.kuaishouzt.com/rest/zt/live/web/obs/status?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.$store.state.ACFunCommon.userId + "&acfun.midground.api_st=" + this.$store.state.ACFunCommon.acfunST,
           "https://member.acfun.cn",
