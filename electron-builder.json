@@ -3,6 +3,7 @@
     "productName": "ACLiveHelper",
     "copyright": "Hakura Tech",
     "win": {
+        "artifactName": "${productName}_Setup_${version}.${ext}",
         "target": "nsis",
         "icon": "favicon.ico",
         "publisherName": "Hakura"
@@ -15,8 +16,8 @@
         "allowToChangeInstallationDirectory": true
     },
     "publish": {
-        "provider": "s3",
-        "bucket": "bucko",
-        "path": "/releases"
+        "provider": "generic",
+        "url": "https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/",
+        "useMultipleRangeRequest": false
     }
 }

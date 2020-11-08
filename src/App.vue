@@ -159,7 +159,7 @@ export default {
         time: timestamp,
         isGift: isGift,
         num: num,
-        uniqueId: timestamp + id + danmaku
+        uniqueId: Date.now() + id + danmaku
       })
     }
   }

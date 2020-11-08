@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.7"
+Vue.prototype.$version = "0.2.8"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
@@ -63,6 +63,15 @@ const store = new Vuex.Store({
       liveStreamUrl: "",
       liveStreamKey: "",
       liveId: "",
+    },
+    summaryInfo: {
+      liveId: "",
+      diamond: 0,
+      gift: 0,
+      glodBanana: 0,
+      watchCount: 0,
+      likeCount: 0,
+      liveDurationMs: "00:00:00",
     },
     logList: [],
     snackbar: {

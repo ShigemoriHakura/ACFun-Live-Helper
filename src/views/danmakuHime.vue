@@ -37,7 +37,7 @@ export default {
     async loadPage(url) {
       console.log("Loading " + url);
       var webview = document.getElementById('browserView')
-      const res = await got("https://danmaku.loli.ren/danmakuStyle.css", {
+      const res = await got("https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/css/danmakuStyle.css", {
         method: "GET",
       })
       webview.addEventListener('dom-ready', function () {

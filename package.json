@@ -1,6 +1,6 @@
 {
   "name": "aclivehelper",
-  "version": "0.2.5",
+  "version": "0.2.8",
   "author": "Hakura",
   "description": "A helper for acfun live",
   "private": true,
@@ -19,6 +19,7 @@
     "electron-config": "^2.0.0",
     "got": "^11.8.0",
     "js-base64": "^3.5.2",
+    "js-yaml": "^3.14.0",
     "register-service-worker": "^1.7.1",
     "roboto-fontface": "*",
     "vue": "^2.6.11",

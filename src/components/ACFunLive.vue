@@ -9,6 +9,9 @@
           <v-tab>
             封面设置
           </v-tab>
+          <v-tab>
+            上场直播总结
+          </v-tab>
           <v-tab-item>
             <v-row>
               <v-col cols="12" md="7">
@@ -44,6 +47,56 @@
                 overflow: unset;
               " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
                   :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
+              </v-col>
+            </v-row>
+          </v-tab-item>
+          <v-tab-item>
+            <v-row>
+              <v-col cols="12" md="12">
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left">
+                          名称
+                        </th>
+                        <th class="text-left">
+                          情况
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>直播ID（如果为空则无数据）</td>
+                        <td>{{$store.state.summaryInfo.liveId}}</td>
+                      </tr>
+                      <tr>
+                        <td>得到点赞</td>
+                        <td>{{$store.state.summaryInfo.likeCount}}</td>
+                      </tr>
+                      <tr>
+                        <td>观看人数</td>
+                        <td>{{$store.state.summaryInfo.watchCount}}</td>
+                      </tr>
+                      <tr>
+                        <td>获得钻石数</td>
+                        <td>{{$store.state.summaryInfo.diamond}}</td>
+                      </tr>
+                      <tr>
+                        <td>收到礼物</td>
+                        <td>{{$store.state.summaryInfo.gift}}</td>
+                      </tr>
+                      <tr>
+                        <td>获得金香蕉数</td>
+                        <td>{{$store.state.summaryInfo.glodBanana}}</td>
+                      </tr>
+                      <tr>
+                        <td>直播时长</td>
+                        <td>{{$store.state.summaryInfo.liveDurationMs}}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
               </v-col>
             </v-row>
           </v-tab-item>
@@ -114,6 +167,13 @@ export default {
       }
     }).bind(this)
 
+    this.$store.watch((state) => state.liveInfo.liveId, async (newValue, oldValue) => {
+      console.log('直播组件：直播ID变更：' + oldValue + ' -> ' + newValue)
+      if (oldValue != "") {
+        await this.getLiveEndSummary(oldValue)
+      }
+    }).bind(this)
+
     this.$store.watch((state) => state.config.isLogin, async (newValue, oldValue) => {
       console.log('直播组件：登录变更：' + oldValue + ' -> ' + newValue)
       if (newValue) {
@@ -141,6 +201,22 @@ export default {
     window.clearInterval(this.getLiveStatusTimer)
   },
   methods: {
+    getFormatedDuration(time) {
+      var days = time / 1000 / 60 / 60 / 24
+      var daysRound = Math.floor(days)
+      var hours = time / 1000 / 60 / 60 - (24 * daysRound)
+      var hoursRound = Math.floor(hours)
+      var minutes = time / 1000 / 60 - (24 * 60 * daysRound) - (60 * hoursRound)
+      var minutesRound = Math.floor(minutes)
+      var seconds = time / 1000 - (24 * 60 * 60 * daysRound) - (60 * 60 * hoursRound) - (60 * minutesRound)
+      var secondsRound = Math.floor(seconds)
+      var time = this.formatZero(hoursRound, 2) + ':' + this.formatZero(minutesRound, 2) + ':' + this.formatZero(secondsRound, 2)
+      return time
+    },
+    formatZero(num, len) {
+      if (String(num).length > len) return num;
+      return (Array(len).join(0) + num).slice(-len);
+    },
     onCopy: function () {
       this.$store.state.snackbar.text = "复制成功"
       this.$store.state.snackbar.show = true
@@ -206,6 +282,31 @@ export default {
           })
         }
         this.concrete = this.categoryConcrete[this.categoryId]
+      }
+    },
+    async getLiveEndSummary(liveId) {
+      var res = await this.$ACFunCommon.postHTTPResult(
+        "https://api.kuaishouzt.com/rest/zt/live/web/endSummary?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.$store.state.ACFunCommon.userId + "&acfun.midground.api_st=" + this.$store.state.ACFunCommon.acfunST + "&liveId=" + liveId,
+        "https://member.acfun.cn",
+        this.$store.state.ACFunCommon.acfunCookies,
+        {}
+      )
+      var resJson = JSON.parse(res.body)
+      if (resJson.result == 1) {
+        var data = resJson.data
+        this.$store.state.summaryInfo.liveId = liveId
+        this.$store.state.summaryInfo.likeCount = data.likeCount
+        this.$store.state.summaryInfo.watchCount = data.watchCount
+        this.$store.state.summaryInfo.liveDurationMs = this.getFormatedDuration(data.liveDurationMs)
+        if (data.payWalletTypeToReceiveCurrency && data.payWalletTypeToReceiveCurrency[1]) {
+          this.$store.state.summaryInfo.diamond = data.payWalletTypeToReceiveCurrency[1]
+        }
+        if (data.payWalletTypeToReceiveCount && data.payWalletTypeToReceiveCount[1]) {
+          this.$store.state.summaryInfo.gift = data.payWalletTypeToReceiveCount[1]
+        }
+        if (data.payWalletTypeToReceiveCurrency && data.payWalletTypeToReceiveCurrency[2]) {
+          this.$store.state.summaryInfo.glodBanana = data.payWalletTypeToReceiveCurrency[2]
+        }
       }
     },
     async startLive() {

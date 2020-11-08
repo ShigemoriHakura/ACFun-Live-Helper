@@ -243,7 +243,7 @@ export default {
       []
     )
     const doc = yaml.safeLoad(result.body)
-    if (doc.version != this.$version) {
+    if (doc.version > this.$version) {
       this.dialogSet("update", this.$version, doc.version)
     }
 
