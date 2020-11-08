@@ -3,6 +3,9 @@
     <v-container style="max-width: 100% !important">
       <v-container v-if="$store.state.config.isLogin" style="max-width: 100% !important">
         <v-row>
+          <v-col cols="12" md="12">
+            AC直播助手版本：{{$version}}
+          </v-col>
           <v-col cols="12" md="6">
             欢迎你，{{$store.state.ACFunCommon.userName}}（UID：{{$store.state.ACFunCommon.userId}}）
           </v-col>

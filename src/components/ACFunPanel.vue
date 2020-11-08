@@ -4,7 +4,7 @@
       <v-dialog v-model="dialogShow" width="500">
         <v-card>
           <v-card-title class="headline grey lighten-2">
-            {{dialogText}}： {{dialogUserName}} ({{dialogUserId}}) 么？
+            {{dialogText}}： {{dialogUserName}} ({{dialogUserId}}) ？
           </v-card-title>
           <v-divider></v-divider>
           <v-card-actions>
@@ -23,19 +23,19 @@
       请先登录
     </v-container>
     <v-container v-if="$store.state.config.isLogin" style="max-width: 100%!important;">
-      AC直播助手版本：{{$version}}，房间号：{{$store.state.ACFunCommon.userId}}
+      房间号：{{$store.state.ACFunCommon.userId}}
       <v-tabs>
         <v-tab>
           首页
         </v-tab>
         <v-tab>
-          观众列表
+          观众列表 ({{$store.state.roomInfo.onlineCount}})
         </v-tab>
         <v-tab>
-          房管列表
+          房管列表 ({{$store.state.roomInfo.managerList.length}})
         </v-tab>
         <v-tab>
-          拉黑列表
+          拉黑列表 ({{$store.state.roomInfo.blockList.length}})
         </v-tab>
         <v-tab-item>
           <v-row>
@@ -50,7 +50,7 @@
               <v-btn class="ma-2" elevation="2" color="warning" @click="clearDanmakuList">清除历史弹幕</v-btn>
             </v-col>
             <v-col cols="12" md="12">
-              弹幕情况 (liveID：{{$store.state.roomInfo.liveId}})
+              弹幕情况 (liveID：{{getFormatLiveId()}})
               <v-simple-table>
                 <template v-slot:default>
                   <thead>
@@ -130,7 +130,7 @@
         <v-tab-item>
           <v-row>
             <v-col cols="12" md="12">
-              房管列表 ({{$store.state.roomInfo.managerList.length}})
+              房管列表
               <v-simple-table>
                 <template v-slot:default>
                   <thead>
@@ -162,7 +162,7 @@
         <v-tab-item>
           <v-row>
             <v-col cols="12" md="12">
-              拉黑列表 ({{$store.state.roomInfo.blockList.length}})
+              拉黑列表
               <v-simple-table>
                 <template v-slot:default>
                   <thead>
@@ -200,8 +200,10 @@
 import eConfig from "electron-config"
 import cookie from "cookie"
 import got from "got"
-import { remote } from 'electron'
+import { remote, shell } from 'electron'
 import { formatDate } from '@/utils/timeFormat'
+import yaml from "js-yaml"
+import { version } from 'js-base64'
 
 export default {
   name: 'ACFunPanel',
@@ -218,6 +220,8 @@ export default {
     danmakuWindow: null,
     danmakuFrame: null,
     danmakuText: "",
+
+    TTSTimer: 0,
   }),
   watch: {
     categoryId: {
@@ -233,8 +237,18 @@ export default {
     }
   },
   async created() {
+    var result = await this.$ACFunCommon.getHTTPResult(
+      "https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/latest.yml",
+      "",
+      []
+    )
+    const doc = yaml.safeLoad(result.body)
+    if (doc.version != this.$version) {
+      this.dialogSet("update", this.$version, doc.version)
+    }
+
     this.$store.watch((state) => state.roomInfo.liveId, async (newValue, oldValue) => {
-      console.log('助手组件：liveId变更：' + oldValue + ' -> ' + newValue)
+      console.log('房间助手：liveId变更：' + oldValue + ' -> ' + newValue)
       if (newValue != "") {
         this.$store.state.snackbar.text = "检测到开播"
         this.$store.state.snackbar.show = true
@@ -242,16 +256,57 @@ export default {
     }).bind(this)
 
     this.$store.watch((state) => state.roomInfo.isLive, async (newValue, oldValue) => {
-      console.log('助手组件：直播状态变更：' + oldValue + ' -> ' + newValue)
+      console.log('房间助手：直播状态变更：' + oldValue + ' -> ' + newValue)
       if (!newValue) {
         this.$store.state.roomInfo.watchingList = []
       }
     }).bind(this)
 
+    this.$store.watch((state) => state.roomInfo.danmakuList, async (newValue, oldValue) => {
+      var danmaku = newValue[0]
+      console.log('房间助手：弹幕状态变更')
+      if (this.$store.state.TTSInfo.isTTS) {
+        if (danmaku.isGift && this.$store.state.TTSInfo.TTSgift) {
+          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI("感谢" + danmaku.nickname + "送的" + danmaku.num + "个" + danmaku.content)
+          this.$store.state.TTSInfo.TTSList.push(url)
+        } else {
+          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(danmaku.nickname + "说:" + danmaku.content)
+          this.$store.state.TTSInfo.TTSList.push(url)
+        }
+      }
+    }).bind(this)
+
     window.setInterval(this.loadRoom, 2 * 1000)
     window.setInterval(this.fetchManagerList, 2 * 1000)
+    this.processTTSQueue()
   },
   methods: {
+    processTTSQueue() {
+      if (this.TTSTimer != null) {
+        window.clearInterval(this.TTSTimer);
+      }
+      if (this.$store.state.TTSInfo.TTSList.length > 0) {
+        console.log("处理TTS队列")
+        var url = this.$store.state.TTSInfo.TTSList.splice(0, 1)
+        url = url[0]
+        var u = new Audio(url)
+        u.src = url
+        u.addEventListener('play', () => {
+          setTimeout(() => {
+            this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
+          }, 800)
+        });
+        u.play()
+      } else {
+        this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
+      }
+    },
+    getFormatLiveId() {
+      if (this.$store.state.roomInfo.liveId != "") {
+        return this.$store.state.roomInfo.liveId
+      }
+      return "暂无"
+    },
     dialogSet(action, username, userid) {
       switch (action) {
         case "addManager":
@@ -269,13 +324,16 @@ export default {
         case "kick":
           this.dialogText = "是否踢出观众"
           break
+        case "update":
+          this.dialogText = "是否更新版本"
+          break
       }
       this.dialogUserName = username
       this.dialogUserId = userid
       this.dialogAction = action
       this.dialogShow = true
     },
-    dialogRun() {
+    async dialogRun() {
       switch (this.dialogAction) {
         case "addManager":
           this.addManager(this.dialogUserName, this.dialogUserId)
@@ -291,6 +349,15 @@ export default {
           break
         case "kick":
           this.kickUser(this.dialogUserName, this.dialogUserId)
+          break
+        case "update":
+          var result = await this.$ACFunCommon.getHTTPResult(
+            "https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/latest.yml",
+            "",
+            []
+          )
+          const doc = yaml.safeLoad(result.body)
+          shell.openExternal("https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/" + doc.path)
           break
       }
       this.dialogClose()
@@ -316,15 +383,16 @@ export default {
     },
     async getLiveId(roomId) {
       var res = await this.$ACFunCommon.postHTTPResult(
-        "https://live.acfun.cn/rest/pc-direct/user/userInfo?userId=" + roomId,
+        "https://api-new.app.acfun.cn/rest/app/live/info?authorId=" + roomId,
         "https://www.acfun.cn",
         this.$store.state.ACFunCommon.acfunCookies,
         {}
       )
       var resJson = JSON.parse(res.body)
       if (resJson.result == 0) {
-        if (resJson.profile.liveId !== undefined) {
-          return resJson.profile.liveId
+        if (resJson.liveId !== undefined) {
+          this.$store.state.roomInfo.onlineCount = resJson.onlineCount
+          return resJson.liveId
         } else {
           return false
         }

@@ -15,6 +15,8 @@
 ![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
 
 ## 更新日志
+* 0.2.7 整合部分组件，加入更新检查。
+* 0.2.6 小功能修复。
 * 0.2.5 加入弹幕获取。
 * 0.2.4 修改部分逻辑。
 * 0.2.3 加入直播标题和封面修改（独家！我先找到的接口！）。

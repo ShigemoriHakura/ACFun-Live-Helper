@@ -33,6 +33,17 @@ export default {
       that.$store.state.liveInfo.liveCover = liveCover
     }
 
+    //读取TTS信息
+    var TTS = econfig.get("config.TTSInfo")
+    if (TTS.isTTS != undefined) {
+      that.$store.state.TTSInfo.isTTS = TTS.isTTS
+      that.$store.state.TTSInfo.TTSspeed = TTS.TTSspeed
+      that.$store.state.TTSInfo.TTSpitch = TTS.TTSpitch
+      that.$store.state.TTSInfo.TTSvolume = TTS.TTSvolume
+      that.$store.state.TTSInfo.TTSperson = TTS.TTSperson
+      that.$store.state.TTSInfo.TTSgift = TTS.TTSgift
+    }
+
     that.$store.commit('addLog', "读取缓存内容完成")
   },
 
@@ -54,6 +65,14 @@ export default {
     econfig.set("liveInfo.liveConcreteId", that.$store.state.liveInfo.liveConcreteId)
 
     that.$store.commit('addLog', "保存缓存内容完成")
+  },
+
+  saveTTSData(that) {
+    that.$store.state.TTSList = []
+    //保存的房间ID，弹幕显示用
+    econfig.set("config.TTSInfo", that.$store.state.TTSInfo)
+
+    that.$store.commit('addLog', "保存TTS缓存内容完成")
   },
 
   //刷新登录区逻辑

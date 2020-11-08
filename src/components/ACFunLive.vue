@@ -84,7 +84,7 @@ const econfig = new eConfig()
 let Base64 = require("js-base64").Base64
 
 export default {
-  name: "ACFunPanel",
+  name: "ACFunLive",
   data: () => ({
     categoryId: 0,
     concreteId: 0,

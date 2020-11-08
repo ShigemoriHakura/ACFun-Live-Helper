@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.5"
+Vue.prototype.$version = "0.2.7"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
@@ -35,11 +35,21 @@ const store = new Vuex.Store({
     },
     roomInfo: {
       isLive: false,
+      onlineCount: 0,
       watchingList: [],
       managerList: [],
       blockList: [],
       danmakuList: [],
       liveId: "",
+    },
+    TTSInfo: {
+      isTTS: false,
+      TTSList: [],
+      TTSspeed: 6,
+      TTSpitch: 6,
+      TTSvolume: 6,
+      TTSperson: 0,
+      TTSgift: true
     },
     liveInfo: {
       isLive: false,
@@ -69,6 +79,7 @@ const store = new Vuex.Store({
     }
   }
 })
+
 
 new Vue({
   store: store,

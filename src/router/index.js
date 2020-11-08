@@ -37,6 +37,12 @@ const routes = [
     meta: { navShow: true, }
   },
   {
+    path: '/mate',
+    name: 'Mate',
+    component: () => import('../views/Mate.vue'),
+    meta: { navShow: true, }
+  },
+  {
     path: '/log',
     name: 'Log',
     component: () => import('../views/Log.vue'),
