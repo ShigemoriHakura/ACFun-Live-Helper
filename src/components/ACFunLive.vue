@@ -7,7 +7,10 @@
             开播详情
           </v-tab>
           <v-tab>
-            封面设置
+            普通封面设置
+          </v-tab>
+          <v-tab>
+            GIF封面设置
           </v-tab>
           <v-tab>
             上场直播总结
@@ -15,9 +18,10 @@
           <v-tab-item>
             <v-row>
               <v-col cols="12" md="7">
-                <v-img :src="$store.state.liveInfo.liveCover"></v-img>
+                <v-img :src="getCover()"></v-img>
               </v-col>
               <v-col cols="12" md="5">
+                <v-switch v-model="$store.state.liveInfo.useGifCover" label="使用GIF封面"></v-switch>
                 <v-text-field v-model="$store.state.liveInfo.liveTitle" type="text" label="直播标题"></v-text-field>
                 <v-select v-model="categoryId" :items="category" item-text="categoryName" item-value="categoryId"
                   label="分区">
@@ -47,6 +51,15 @@
                 overflow: unset;
               " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
                   :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
+              </v-col>
+            </v-row>
+          </v-tab-item>
+          <v-tab-item>
+            <v-row>
+              <v-col cols="12" md="12">
+                请自行裁切到1024*608
+                <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
+                  label="上传" filled prepend-icon="mdi-camera"></v-file-input>
               </v-col>
             </v-row>
           </v-tab-item>
@@ -108,16 +121,51 @@
             <v-btn class="ma-2" elevation="2" color="error" @click="stopPush">关闭直播</v-btn>
             <v-btn class="ma-2" elevation="2" color="warning" @click="changeCoverAndTitle">修改封面和标题</v-btn>
           </v-col>
-          <v-col cols="12" md="12">
-            <v-text-field v-model="$store.state.liveInfo.liveTitle" type="text" label="直播标题"></v-text-field>
-            上传封面：
-            <v-image-input style="
+          <v-tabs>
+            <v-tab>
+              基础设置
+            </v-tab>
+            <v-tab>
+              普通封面上传
+            </v-tab>
+            <v-tab>
+              GIF封面上传
+            </v-tab>
+            <v-tab-item>
+              <v-row>
+                <v-col cols="12" md="7">
+                  <v-img :src="getCover()"></v-img>
+                </v-col>
+                <v-col cols="12" md="5">
+                  <v-switch v-model="$store.state.liveInfo.useGifCover" label="使用GIF封面"></v-switch>
+                  <v-text-field v-model="$store.state.liveInfo.liveTitle" type="text" label="直播标题"></v-text-field>
+                </v-col>
+              </v-row>
+            </v-tab-item>
+            <v-tab-item>
+              <v-row>
+                <v-col cols="12" md="12">
+                  普通封面裁剪：
+                  <v-image-input style="
                 height: 756px!important;
                 width: 1180px!important;
                 overflow: unset;
               " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
-              :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
-          </v-col>
+                    :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
+                </v-col>
+              </v-row>
+            </v-tab-item>
+            <v-tab-item>
+              <v-row>
+                <v-col cols="12" md="12">
+                  上传GIF封面：<br>
+                  请自行裁切到1024*608
+                  <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
+                    label="上传" filled prepend-icon="mdi-camera"></v-file-input>
+                </v-col>
+              </v-row>
+            </v-tab-item>
+          </v-tabs>
         </v-row>
       </v-container>
     </v-container>
@@ -183,6 +231,17 @@ export default {
           await this.getLiveKey()
         } else {
           console.log('账号已经开播，无视')
+        }
+      }
+    }).bind(this)
+
+    this.$store.watch((state) => state.liveInfo.liveCoverGifFile, async (newValue, oldValue) => {
+      console.log('直播组件：检查到GIF封面上传：' + oldValue + ' -> ' + newValue)
+      if (newValue) {
+        var reader = new FileReader()
+        reader.readAsDataURL(newValue)
+        reader.onload = () => {
+          this.$store.state.liveInfo.liveCoverGif = reader.result
         }
       }
     }).bind(this)
@@ -313,7 +372,7 @@ export default {
       this.$store.state.liveInfo.liveCategoryId = this.categoryId
       this.$store.state.liveInfo.liveConcreteId = this.concreteId
       this.$ACFunCommon.saveNewData(this)
-      if (this.$store.state.liveInfo.liveCover !== null && this.$store.state.liveInfo.liveTitle !== "") {
+      if (this.getCover() !== null && this.$store.state.liveInfo.liveTitle !== "") {
         await this.uploadPhoto()
       } else {
         this.$store.state.snackbar.text = "请设置封面和标题"
@@ -362,7 +421,7 @@ export default {
         var token = Base64.decode(resJson.info.upToken)
         var rtoken = token.slice(token.indexOf(":") + 1)
 
-        var blob = this.convertBase64UrlToBlob(this.$store.state.liveInfo.liveCover)
+        var blob = this.convertBase64UrlToBlob(this.getCover())
 
         var formData = new FormData();
         formData.append("file", blob, "blob")
@@ -396,7 +455,7 @@ export default {
 
       var buf1 = Buffer.from(resultBefore, 'utf8')
 
-      var buf2 = this.convertBase64UrlToUint8Array(this.$store.state.liveInfo.liveCover)
+      var buf2 = this.convertBase64UrlToUint8Array(this.getCover())
 
       var resultAfter =
         "\r\n" +
@@ -456,7 +515,7 @@ export default {
 
       var buf1 = Buffer.from(resultBefore, 'utf8')
 
-      var buf2 = this.convertBase64UrlToUint8Array(this.$store.state.liveInfo.liveCover)
+      var buf2 = this.convertBase64UrlToUint8Array(this.getCover())
 
       var resultAfter =
         "\r\n" +
@@ -503,6 +562,12 @@ export default {
         this.$store.state.snackbar.show = true
       }
     },
+    getCover() {
+      if (this.$store.state.liveInfo.useGifCover && this.$store.state.liveInfo.liveCoverGif != null && this.$store.state.liveInfo.liveCoverGif != undefined) {
+        return this.$store.state.liveInfo.liveCoverGif
+      }
+      return this.$store.state.liveInfo.liveCover
+    }
   },
 };
 </script>

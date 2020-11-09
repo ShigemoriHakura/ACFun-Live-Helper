@@ -266,12 +266,20 @@ export default {
       var danmaku = newValue[0]
       console.log('房间助手：弹幕状态变更')
       if (this.$store.state.TTSInfo.isTTS) {
-        if (danmaku.isGift && this.$store.state.TTSInfo.TTSgift) {
-          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI("感谢" + danmaku.nickname + "送的" + danmaku.num + "个" + danmaku.content)
-          this.$store.state.TTSInfo.TTSList.push(url)
-        } else {
-          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(danmaku.nickname + "说:" + danmaku.content)
-          this.$store.state.TTSInfo.TTSList.push(url)
+        let result = this.$store.state.TTSInfo.TTSList.find(c => Number(c.userId) === danmaku.userId)
+        var push = true
+        if (result) {
+          if (result.content == danmaku.content) {
+            push = false
+            result.num += danmaku.num
+          }
+        }
+        if (push) {
+          if (danmaku.isGift && this.$store.state.TTSInfo.TTSgift) {
+            this.$store.state.TTSInfo.TTSList.push(danmaku)
+          } else {
+            this.$store.state.TTSInfo.TTSList.push(danmaku)
+          }
         }
       }
     }).bind(this)
@@ -282,21 +290,35 @@ export default {
   },
   methods: {
     processTTSQueue() {
+      //Todo: 改成处理时候再拼装
       if (this.TTSTimer != null) {
         window.clearInterval(this.TTSTimer);
       }
       if (this.$store.state.TTSInfo.TTSList.length > 0) {
         console.log("处理TTS队列")
-        var url = this.$store.state.TTSInfo.TTSList.splice(0, 1)
-        url = url[0]
-        var u = new Audio(url)
-        u.src = url
-        u.addEventListener('play', () => {
-          setTimeout(() => {
-            this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-          }, 800)
-        });
-        u.play()
+        var danmaku = this.$store.state.TTSInfo.TTSList.splice(0, 1)
+        danmaku = danmaku[0]
+        if (danmaku.isGift) {
+          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI("感谢" + danmaku.nickname + "送的" + danmaku.num + "个" + danmaku.content)
+          var u = new Audio(url)
+          u.src = url
+          u.addEventListener('play', () => {
+            setTimeout(() => {
+              this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
+            }, 800)
+          });
+          u.play()
+        } else {
+          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(danmaku.nickname + "说:" + danmaku.content)
+          var u = new Audio(url)
+          u.src = url
+          u.addEventListener('play', () => {
+            setTimeout(() => {
+              this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
+            }, 800)
+          });
+          u.play()
+        }
       } else {
         this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
       }
@@ -579,7 +601,7 @@ export default {
     switchDanmakuHime() {
       if (this.danmakuWindow == null) {
         this.$ACFunCommon.saveNewData(this)
-        const winUrl = process.env.NODE_ENV === 'development' ? `http://localhost:8080/#/danmakuHime` : `file://${__dirname}/index.html#danmakuHime`;
+        const winUrl = process.env.NODE_ENV === 'development' ? `http://localhost:8080/danmakuHime` : `file://${__dirname}/danmakuHime.html/`;
         this.danmakuWindow = new remote.BrowserWindow({
           titleBarStyle: 'hidden',
           frame: false,
@@ -604,7 +626,7 @@ export default {
     },
     switchDanmakuFrame() {
       if (this.danmakuFrame == null) {
-        const winUrl = process.env.NODE_ENV === 'development' ? `http://localhost:8080/#/danmakuFrame` : `file://${__dirname}/index.html#danmakuFrame`;
+        const winUrl = process.env.NODE_ENV === 'development' ? `http://localhost:8080/danmakuFrame` : `file://${__dirname}/danmakuFrame.html`;
         this.danmakuFrame = new remote.BrowserWindow({
           titleBarStyle: 'hidden',
           frame: false,

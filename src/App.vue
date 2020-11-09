@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-if="$route.meta.navShow" permanent expand-on-hover app>
+    <v-navigation-drawer permanent expand-on-hover app>
       <v-list nav>
         <v-list-item v-for="item in items" :key="item.title" :to="item.link" link v-show="getIsShow(item.needIsLogin)">
           <v-list-item-icon>
@@ -31,6 +31,9 @@
 </template>
 
 <script>
+
+import http from "http";
+import { ipcRenderer } from 'electron';
 
 const COMMAND_HEARTBEAT = 0
 const COMMAND_JOIN_ROOM = 1

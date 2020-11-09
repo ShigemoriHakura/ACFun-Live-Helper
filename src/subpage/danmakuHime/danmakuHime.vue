@@ -1,7 +1,7 @@
 <template>
   <div class="danmakuHime" style="overflow: hidden;background-color: rgba(0, 0, 0, 0);">
     <div class="window-chrome" id="window-chrome">
-      <div class="app-label">弹幕助手</div>
+      <div class="app-label">置顶浏览器</div>
       <div class="window-controls">
         <div class="close" @click="closeWindow"><img src="@/assets/ui/close.png" /></div>
       </div>
@@ -12,7 +12,7 @@
       <button @click="enableClickThrough" id="clickthroughButton"><img src="@/assets/ui/eye.png" /></button>
     </div>
 
-    <webview id="browserView" src="https://danmaku.loli.ren"
+    <webview id="browserView" src="_blank"
       style="background-color: rgba(0, 0, 0, 0)!important;display:inline-flex; width:100%;"></webview>
   </div>
 </template>
@@ -44,8 +44,6 @@ export default {
         webview.insertCSS(res.body);
       })
       webview.loadURL(url);
-      document.getElementById('inspire').style["background-color"] = "rgba(0, 0, 0, 0)"
-      document.getElementById('inspire').style["color"] = "rgba(0, 0, 0, 0)"
     },
     closeWindow() {
       var window = remote.getCurrentWindow()
@@ -70,7 +68,7 @@ export default {
   },
   watch: {
     opacity() {
-      document.getElementById('inspire').style["opacity"] = this.opacity
+      document.getElementById('browserView').style["opacity"] = this.opacity
     }
   }
 }

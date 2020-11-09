@@ -25,12 +25,17 @@ export default {
 
     //获取存储的直播分区和子分区，直播标题，直播封面
     var liveCover = econfig.get("liveInfo.liveCover")
+    var liveCoverGif = econfig.get("liveInfo.liveCoverGif")
+    that.$store.state.liveInfo.useGifCover = econfig.get("liveInfo.useGifCover")
     that.$store.state.liveInfo.liveTitle = econfig.get("liveInfo.liveTitle")
     that.$store.state.liveInfo.liveCategoryId = econfig.get("liveInfo.liveCategoryId")
     that.$store.state.liveInfo.liveConcreteId = econfig.get("liveInfo.liveConcreteId")
     //判断存储的封面情况
     if (liveCover !== undefined) {
       that.$store.state.liveInfo.liveCover = liveCover
+    }
+    if (liveCoverGif !== undefined) {
+      that.$store.state.liveInfo.liveCoverGif = liveCoverGif
     }
 
     //读取TTS信息
@@ -47,6 +52,12 @@ export default {
     that.$store.commit('addLog', "读取缓存内容完成")
   },
 
+  getMinSavedData(that) {
+    //获取存储的cookies
+    that.$store.state.ACFunCommon.acfunCookies = econfig.get("ACFunCommon.acfunCookies")
+
+  },
+
   //全部数据保存
   saveNewData(that) {
     //保存的房间ID，弹幕显示用
@@ -60,6 +71,8 @@ export default {
 
     //保存存储的直播分区和子分区，直播标题，直播封面
     econfig.set("liveInfo.liveCover", that.$store.state.liveInfo.liveCover)
+    econfig.set("liveInfo.useGifCover", that.$store.state.liveInfo.useGifCover)
+    econfig.set("liveInfo.liveCoverGif", that.$store.state.liveInfo.liveCoverGif)
     econfig.set("liveInfo.liveTitle", that.$store.state.liveInfo.liveTitle)
     econfig.set("liveInfo.liveCategoryId", that.$store.state.liveInfo.liveCategoryId)
     econfig.set("liveInfo.liveConcreteId", that.$store.state.liveInfo.liveConcreteId)

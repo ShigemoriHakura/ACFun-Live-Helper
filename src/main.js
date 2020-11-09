@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.8"
+Vue.prototype.$version = "0.2.9"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
@@ -53,8 +53,10 @@ const store = new Vuex.Store({
     },
     liveInfo: {
       isLive: false,
-      useLiveTransfer: false,
+      useGif: false,
       liveCover: null,
+      liveCoverGif: null,
+      liveCoverGifFile: null,
       liveTitle: "",
       liveCategoryId: 0,
       liveConcreteId: 0,
