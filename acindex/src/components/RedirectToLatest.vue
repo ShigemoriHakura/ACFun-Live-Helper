@@ -8,7 +8,9 @@
         AC直播助手<br>
         最新版本：{{version}}<br>
         文件名：{{path}}<br>
-        <v-btn class="ma-2" elevation="2" color="primary" :href="link">点我下载</v-btn>
+        <v-btn class="ma-2" elevation="2" color="success" :href="link">点我下载</v-btn>
+        <v-btn class="ma-2" elevation="2" color="primary" href="https://github.com/ShigemoriHakura/ACFun-Live-Helper">
+          Github</v-btn>
       </v-col>
     </v-row>
   </v-container>
