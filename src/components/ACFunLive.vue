@@ -13,6 +13,9 @@
             GIF封面设置
           </v-tab>
           <v-tab>
+            OBS配置写入
+          </v-tab>
+          <v-tab>
             上场直播总结
           </v-tab>
           <v-tab-item>
@@ -60,6 +63,27 @@
                 请自行裁切到1024*608
                 <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
                   label="上传" filled prepend-icon="mdi-camera"></v-file-input>
+              </v-col>
+            </v-row>
+          </v-tab-item>
+          <v-tab-item>
+            <v-row>
+              <v-col cols="12" md="12">
+                请先打开本助手，再打开OBS！！！<br>
+                中途中断重新开播时请关闭OBS重新打开，或重新手动复制推流码至OBS。
+                <v-text-field v-model="$store.state.liveInfo.OBSFolder" type="text" label="OBS配置文件夹"></v-text-field>
+                <v-btn class="ma-2" @click="testWriteOBSConfig" elevation="2" color="primary">测试写入</v-btn>
+                <v-btn class="ma-2" @click="closeOBSConfig" elevation="2" color="error">关闭此功能</v-btn>
+              </v-col>
+              <v-col cols="12" md="12">
+                设置教程：<br>
+                1.打开OBS，选择文件->打开配置文件夹<br>
+                2.复制下文件夹路径<br>
+                3.粘贴入上方“OBS配置文件夹”中<br>
+                4.点击测试写入，如果成功会提示写入成功<br>
+                5.需要开播时，请先打开本助手，再打开OBS！！！<br>
+                <br>
+                <v-img height="237px" width="295px" src="@/assets/img/obs/1.png"></v-img>
               </v-col>
             </v-row>
           </v-tab-item>
@@ -179,6 +203,7 @@
 import eConfig from "electron-config"
 import cookie from "cookie"
 import got from "got"
+import fs from "fs"
 import axios from 'axios'
 
 const econfig = new eConfig()
@@ -205,6 +230,9 @@ export default {
     if (this.$store.state.config.isLogin && !this.$store.state.liveInfo.isLive) {
       await this.getLiveType()
       await this.getLiveKey()
+      if (this.$store.state.liveInfo.OBSFolder != "") {
+        this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
+      }
     }
 
     this.$store.watch((state) => state.liveInfo.isLive, async (newValue, oldValue) => {
@@ -212,6 +240,9 @@ export default {
       if (!newValue) {
         await this.getLiveType()
         await this.getLiveKey()
+        if (this.$store.state.liveInfo.OBSFolder != "") {
+          this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
+        }
       }
     }).bind(this)
 
@@ -229,6 +260,9 @@ export default {
         if (!this.$store.state.liveInfo.isLive) {
           await this.getLiveType()
           await this.getLiveKey()
+          if (this.$store.state.liveInfo.OBSFolder != "") {
+            this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
+          }
         } else {
           console.log('账号已经开播，无视')
         }
@@ -567,6 +601,48 @@ export default {
         return this.$store.state.liveInfo.liveCoverGif
       }
       return this.$store.state.liveInfo.liveCover
+    },
+    testWriteOBSConfig() {
+      if (this.$store.state.liveInfo.OBSFolder != "") {
+        this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
+      } else {
+        this.$store.state.snackbar.text = "请输入OBS配置文件夹"
+        this.$store.state.snackbar.show = true
+      }
+    },
+    readOBSConfig(path) {
+      fs.readFile(path, 'utf-8', function (err, data) {
+        if (err) {
+          this.$store.state.snackbar.text = "发生错误，请检查OBS配置文件夹"
+          this.$store.state.snackbar.show = true
+        } else {
+          this.$ACFunCommon.saveNewData(this)
+          this.writeOBSConfig(path, data)
+        }
+      }.bind(this))
+    },
+    writeOBSConfig(path, oldConfig) {
+      try {
+        var resJson = JSON.parse(oldConfig)
+        resJson.settings.key = this.$store.state.liveInfo.liveStreamKey
+        resJson.settings.server = this.$store.state.liveInfo.liveStreamUrl
+        fs.writeFile(path, JSON.stringify(resJson, null, 4), { 'flag': 'w' }, function (err) {
+          if (err) {
+            this.$store.state.snackbar.text = "发生错误，请检查权限"
+            this.$store.state.snackbar.show = true
+          } else {
+            this.$store.state.snackbar.text = "写入成功"
+            this.$store.state.snackbar.show = true
+          }
+        }.bind(this))
+      } catch (err) {
+        this.$store.state.snackbar.text = "发生错误，请检查配置文件"
+        this.$store.state.snackbar.show = true
+      }
+    },
+    closeOBSConfig() {
+      this.$store.state.liveInfo.OBSFolder = ""
+      this.$ACFunCommon.saveNewData(this)
     }
   },
 };

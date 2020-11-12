@@ -15,6 +15,7 @@
 ![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
 
 ## 更新日志
+* 0.2.11 加入OBS配置文件写入。
 * 0.2.10 修复一个小bug。
 * 0.2.9 加入TTS队列，加入直播GIF封面，优化项目构造。
 * 0.2.8 加入直播后详情获取，优化更新检查逻辑。

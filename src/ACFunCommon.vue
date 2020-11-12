@@ -28,6 +28,7 @@ export default {
     var liveCoverGif = econfig.get("liveInfo.liveCoverGif")
     that.$store.state.liveInfo.useGifCover = econfig.get("liveInfo.useGifCover")
     that.$store.state.liveInfo.liveTitle = econfig.get("liveInfo.liveTitle")
+    that.$store.state.liveInfo.OBSFolder = econfig.get("liveInfo.OBSFolder")
     that.$store.state.liveInfo.liveCategoryId = econfig.get("liveInfo.liveCategoryId")
     that.$store.state.liveInfo.liveConcreteId = econfig.get("liveInfo.liveConcreteId")
     //判断存储的封面情况
@@ -74,6 +75,7 @@ export default {
     econfig.set("liveInfo.useGifCover", that.$store.state.liveInfo.useGifCover)
     econfig.set("liveInfo.liveCoverGif", that.$store.state.liveInfo.liveCoverGif)
     econfig.set("liveInfo.liveTitle", that.$store.state.liveInfo.liveTitle)
+    econfig.set("liveInfo.OBSFolder", that.$store.state.liveInfo.OBSFolder)
     econfig.set("liveInfo.liveCategoryId", that.$store.state.liveInfo.liveCategoryId)
     econfig.set("liveInfo.liveConcreteId", that.$store.state.liveInfo.liveConcreteId)
 
