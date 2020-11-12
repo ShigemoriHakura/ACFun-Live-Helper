@@ -49,18 +49,18 @@
               <v-col cols="12" md="12">
                 上传封面：
                 <v-image-input style="
-                height: 756px!important;
-                width: 1180px!important;
+                height: 806px!important;
+                width: 1280px!important;
                 overflow: unset;
               " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
-                  :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
+                  :imageHeight="608" :imageWidth="1080" :fullWidth="true" :fullHeight="true" :hideActions="false" />
               </v-col>
             </v-row>
           </v-tab-item>
           <v-tab-item>
             <v-row>
               <v-col cols="12" md="12">
-                请自行裁切到1024*608
+                请自行裁切到1080*608
                 <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
                   label="上传" filled prepend-icon="mdi-camera"></v-file-input>
               </v-col>
@@ -171,11 +171,11 @@
                 <v-col cols="12" md="12">
                   普通封面裁剪：
                   <v-image-input style="
-                height: 756px!important;
-                width: 1180px!important;
+                height: 806px!important;
+                width: 1280px!important;
                 overflow: unset;
               " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
-                    :imageHeight="608" :imageWidth="1024" :fullWidth="true" :fullHeight="true" :hideActions="false" />
+                    :imageHeight="608" :imageWidth="1080" :fullWidth="true" :fullHeight="true" :hideActions="false" />
                 </v-col>
               </v-row>
             </v-tab-item>
@@ -183,7 +183,7 @@
               <v-row>
                 <v-col cols="12" md="12">
                   上传GIF封面：<br>
-                  请自行裁切到1024*608
+                  请自行裁切到1080*608
                   <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
                     label="上传" filled prepend-icon="mdi-camera"></v-file-input>
                 </v-col>
