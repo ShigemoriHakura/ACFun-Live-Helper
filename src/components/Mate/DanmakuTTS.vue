@@ -77,8 +77,16 @@ export default {
       return "已停止"
     },
     testTTS() {
-      var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI("这是一个测试")
-      this.$store.state.TTSInfo.TTSList.push(url)
+      var danmaku = "这是一个测试"
+      this.$store.state.TTSInfo.TTSList.push({
+        nickname: "测试",
+        userId: 1,
+        content: danmaku,
+        time: Date.now(),
+        isGift: false,
+        num: 1,
+        uniqueId: Date.now() + 1 + danmaku
+      })
     },
     saveSettings() {
       this.$ACFunCommon.saveTTSData(this)

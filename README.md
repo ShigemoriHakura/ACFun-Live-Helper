@@ -15,6 +15,7 @@
 ![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
 
 ## 更新日志
+* 0.2.13 修复点歌命令bug，加入OBS控制，移除OBS配置文件写入。
 * 0.2.12 修复尺寸bug。
 * 0.2.11 加入OBS配置文件写入。
 * 0.2.10 修复一个小bug。

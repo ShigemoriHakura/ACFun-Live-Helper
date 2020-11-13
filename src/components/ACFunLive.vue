@@ -13,7 +13,7 @@
             GIF封面设置
           </v-tab>
           <v-tab>
-            OBS配置写入
+            OBS控制
           </v-tab>
           <v-tab>
             上场直播总结
@@ -40,6 +40,9 @@
                 <v-btn class="ma-2" elevation="2" color="primary" v-clipboard:copy="$store.state.liveInfo.liveStreamKey"
                   v-clipboard:success="onCopy">
                   复制推流码</v-btn>
+                <v-btn class="ma-2" elevation="2" color="warning" v-if="$store.state.obsInfo.obsEnabled"
+                  @click="writeOBSWS">
+                  写入OBS</v-btn>
                 <v-btn class="ma-2" elevation="2" color="error" @click="startLive">开播</v-btn>
               </v-col>
             </v-row>
@@ -69,21 +72,22 @@
           <v-tab-item>
             <v-row>
               <v-col cols="12" md="12">
-                请先打开本助手，再打开OBS！！！<br>
-                中途中断重新开播时请关闭OBS重新打开，或重新手动复制推流码至OBS。
-                <v-text-field v-model="$store.state.liveInfo.OBSFolder" type="text" label="OBS配置文件夹"></v-text-field>
-                <v-btn class="ma-2" @click="testWriteOBSConfig" elevation="2" color="primary">测试写入</v-btn>
-                <v-btn class="ma-2" @click="closeOBSConfig" elevation="2" color="error">关闭此功能</v-btn>
+                请注意先打开OBS再打开助手<br>
+                <v-text-field v-model="$store.state.obsInfo.obsPort" type="number" label="OBS控制端口"></v-text-field>
+                <v-text-field v-model="$store.state.obsInfo.obsPass" type="text" label="OBS控制密码"></v-text-field>
+                <v-btn class="ma-2" @click="testOBSWS" elevation="2" color="success">测试并开启</v-btn>
+                <v-btn class="ma-2" @click="resetOBSWS" elevation="2" color="error">关闭此功能</v-btn>
               </v-col>
               <v-col cols="12" md="12">
                 设置教程：<br>
-                1.打开OBS，选择文件->打开配置文件夹<br>
-                2.复制下文件夹路径<br>
-                3.粘贴入上方“OBS配置文件夹”中<br>
-                4.点击测试写入，如果成功会提示写入成功<br>
-                5.需要开播时，请先打开本助手，再打开OBS！！！<br>
+                0.检查OBS版本是否大于25或以上<br>
+                1.安装OBS控制插件（<v-btn class="ma-2" @click="downloadOBSWS" elevation="2" color="success">点我下载</v-btn>）<br>
+                2.设置密码和端口，注意关闭“启用系统托盘通知”，不然会很吵<br>
+                3.将端口和密码写入上方对应栏目中<br>
+                4.点击测试并开启<br>
+                5.如果失败，请检查端口和密码等是否正确，端口是否堵塞等。<br>
                 <br>
-                <v-img height="237px" width="295px" src="@/assets/img/obs/1.png"></v-img>
+                <v-img width="458px" height="263px" src="@/assets/img/obs/P1.png"></v-img>
               </v-col>
             </v-row>
           </v-tab-item>
@@ -203,8 +207,9 @@
 import eConfig from "electron-config"
 import cookie from "cookie"
 import got from "got"
-import fs from "fs"
 import axios from 'axios'
+import OBSWebSocket from 'obs-websocket-js'
+import { shell } from 'electron'
 
 const econfig = new eConfig()
 let Base64 = require("js-base64").Base64
@@ -226,13 +231,36 @@ export default {
     this.categoryId = this.$store.state.liveInfo.liveCategoryId
     this.concreteId = this.$store.state.liveInfo.liveConcreteId
 
+    this.$store.watch((state) => state.liveInfo.liveStreamKey, async (newValue, oldValue) => {
+      console.log('直播组件：直播推流码变更：' + oldValue + ' -> ' + newValue)
+      if (this.$store.state.obsInfo.obsEnabled) {
+        const obs = new OBSWebSocket()
+        obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+          .then(() => {
+            obs.send('SetStreamSettings', {
+              'type': "rtmp_custom",
+              settings: {
+                server: this.$store.state.liveInfo.liveStreamUrl,
+                key: this.$store.state.liveInfo.liveStreamKey,
+                use_auth: false,
+              },
+              save: true
+            })
+            this.$store.state.snackbar.text = "已经通知OBS修改推流信息"
+            this.$store.state.snackbar.show = true
+            obs.disconnect()
+          })
+          .catch(err => {
+            this.$store.state.snackbar.text = "自动写入OBS失败：" + err
+            this.$store.state.snackbar.show = true
+          })
+      }
+    }).bind(this)
+
     await this.getLiveStatus()
     if (this.$store.state.config.isLogin && !this.$store.state.liveInfo.isLive) {
       await this.getLiveType()
       await this.getLiveKey()
-      if (this.$store.state.liveInfo.OBSFolder != "") {
-        this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
-      }
     }
 
     this.$store.watch((state) => state.liveInfo.isLive, async (newValue, oldValue) => {
@@ -240,9 +268,6 @@ export default {
       if (!newValue) {
         await this.getLiveType()
         await this.getLiveKey()
-        if (this.$store.state.liveInfo.OBSFolder != "") {
-          this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
-        }
       }
     }).bind(this)
 
@@ -260,9 +285,6 @@ export default {
         if (!this.$store.state.liveInfo.isLive) {
           await this.getLiveType()
           await this.getLiveKey()
-          if (this.$store.state.liveInfo.OBSFolder != "") {
-            this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
-          }
         } else {
           console.log('账号已经开播，无视')
         }
@@ -602,47 +624,56 @@ export default {
       }
       return this.$store.state.liveInfo.liveCover
     },
-    testWriteOBSConfig() {
-      if (this.$store.state.liveInfo.OBSFolder != "") {
-        this.readOBSConfig(this.$store.state.liveInfo.OBSFolder + '/service.json')
+    testOBSWS() {
+      if (this.$store.state.obsInfo.obsPort != 0 && this.$store.state.obsInfo.obsPort != undefined) {
+        const obs = new OBSWebSocket()
+        obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+          .then(() => {
+            this.$store.state.obsInfo.obsEnabled = true
+            this.$ACFunCommon.saveNewData(this)
+            this.$store.state.snackbar.text = "链接成功，已经启动OBS控制"
+            this.$store.state.snackbar.show = true
+            obs.disconnect()
+          })
+          .catch(err => {
+            this.$store.state.snackbar.text = "写入OBS失败：" + err
+            this.$store.state.snackbar.show = true
+          })
       } else {
-        this.$store.state.snackbar.text = "请输入OBS配置文件夹"
+        this.$store.state.snackbar.text = "请好好填写OBS控制端口"
         this.$store.state.snackbar.show = true
       }
     },
-    readOBSConfig(path) {
-      fs.readFile(path, 'utf-8', function (err, data) {
-        if (err) {
-          this.$store.state.snackbar.text = "发生错误，请检查OBS配置文件夹"
-          this.$store.state.snackbar.show = true
-        } else {
-          this.$ACFunCommon.saveNewData(this)
-          this.writeOBSConfig(path, data)
-        }
-      }.bind(this))
-    },
-    writeOBSConfig(path, oldConfig) {
-      try {
-        var resJson = JSON.parse(oldConfig)
-        resJson.settings.key = this.$store.state.liveInfo.liveStreamKey
-        resJson.settings.server = this.$store.state.liveInfo.liveStreamUrl
-        fs.writeFile(path, JSON.stringify(resJson, null, 4), { 'flag': 'w' }, function (err) {
-          if (err) {
-            this.$store.state.snackbar.text = "发生错误，请检查权限"
+    writeOBSWS() {
+      if (this.$store.state.obsInfo.obsEnabled) {
+        const obs = new OBSWebSocket()
+        obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+          .then(() => {
+            obs.send('SetStreamSettings', {
+              'type': "rtmp_custom",
+              settings: {
+                server: this.$store.state.liveInfo.liveStreamUrl,
+                key: this.$store.state.liveInfo.liveStreamKey,
+                use_auth: false,
+              },
+              save: true
+            })
+            this.$store.state.snackbar.text = "写入OBS成功"
             this.$store.state.snackbar.show = true
-          } else {
-            this.$store.state.snackbar.text = "写入成功"
+            obs.disconnect()
+          })
+          .catch(err => {
+            this.$store.state.snackbar.text = "写入OBS失败：" + err
             this.$store.state.snackbar.show = true
-          }
-        }.bind(this))
-      } catch (err) {
-        this.$store.state.snackbar.text = "发生错误，请检查配置文件"
-        this.$store.state.snackbar.show = true
+          })
       }
     },
-    closeOBSConfig() {
-      this.$store.state.liveInfo.OBSFolder = ""
+    resetOBSWS() {
+      this.$store.state.obsInfo.obsEnabled = false
       this.$ACFunCommon.saveNewData(this)
+    },
+    downloadOBSWS() {
+      shell.openExternal("https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/OBS/obs-websocket-4.8.0-Windows-Installer.exe")
     }
   },
 };

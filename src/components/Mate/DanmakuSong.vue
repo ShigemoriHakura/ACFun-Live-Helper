@@ -103,7 +103,7 @@ export default {
         if (danmaku.content.indexOf(this.addText) === 0) {
           var keyword = danmaku.content.split(" ").slice(1).join(" ")
           let result = this.addList.find(c => String(c.song) === keyword)
-          if (!result) {
+          if (!result && keyword != "") {
             this.addList.unshift(
               {
                 timestamp: danmaku.time,

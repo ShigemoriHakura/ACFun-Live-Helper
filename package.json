@@ -1,6 +1,6 @@
 {
   "name": "aclivehelper",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "author": "Hakura",
   "description": "A helper for acfun live",
   "private": true,
@@ -20,6 +20,7 @@
     "got": "^11.8.0",
     "js-base64": "^3.5.2",
     "js-yaml": "^3.14.0",
+    "obs-websocket-js": "^4.0.2",
     "register-service-worker": "^1.7.1",
     "roboto-fontface": "*",
     "vue": "^2.6.11",

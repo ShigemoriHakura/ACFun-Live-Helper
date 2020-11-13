@@ -28,7 +28,6 @@ export default {
     var liveCoverGif = econfig.get("liveInfo.liveCoverGif")
     that.$store.state.liveInfo.useGifCover = econfig.get("liveInfo.useGifCover")
     that.$store.state.liveInfo.liveTitle = econfig.get("liveInfo.liveTitle")
-    that.$store.state.liveInfo.OBSFolder = econfig.get("liveInfo.OBSFolder")
     that.$store.state.liveInfo.liveCategoryId = econfig.get("liveInfo.liveCategoryId")
     that.$store.state.liveInfo.liveConcreteId = econfig.get("liveInfo.liveConcreteId")
     //判断存储的封面情况
@@ -38,6 +37,10 @@ export default {
     if (liveCoverGif !== undefined) {
       that.$store.state.liveInfo.liveCoverGif = liveCoverGif
     }
+
+    that.$store.state.obsInfo.obsPort = econfig.get("obsInfo.obsPort")
+    that.$store.state.obsInfo.obsPass = econfig.get("obsInfo.obsPass")
+    that.$store.state.obsInfo.obsEnabled = econfig.get("obsInfo.obsEnabled")
 
     //读取TTS信息
     var TTS = econfig.get("config.TTSInfo")
@@ -75,9 +78,12 @@ export default {
     econfig.set("liveInfo.useGifCover", that.$store.state.liveInfo.useGifCover)
     econfig.set("liveInfo.liveCoverGif", that.$store.state.liveInfo.liveCoverGif)
     econfig.set("liveInfo.liveTitle", that.$store.state.liveInfo.liveTitle)
-    econfig.set("liveInfo.OBSFolder", that.$store.state.liveInfo.OBSFolder)
     econfig.set("liveInfo.liveCategoryId", that.$store.state.liveInfo.liveCategoryId)
     econfig.set("liveInfo.liveConcreteId", that.$store.state.liveInfo.liveConcreteId)
+
+    econfig.set("obsInfo.obsPort", that.$store.state.obsInfo.obsPort)
+    econfig.set("obsInfo.obsPass", that.$store.state.obsInfo.obsPass)
+    econfig.set("obsInfo.obsEnabled", that.$store.state.obsInfo.obsEnabled)
 
     that.$store.commit('addLog', "保存缓存内容完成")
   },
