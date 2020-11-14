@@ -87,6 +87,7 @@
                 4.点击测试并开启<br>
                 5.如果失败，请检查端口和密码等是否正确，端口是否堵塞等。<br>
                 <br>
+                <v-img width="272px" height="195px" src="@/assets/img/obs/P0.png"></v-img>
                 <v-img width="458px" height="263px" src="@/assets/img/obs/P1.png"></v-img>
               </v-col>
             </v-row>
@@ -636,7 +637,7 @@ export default {
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "写入OBS失败：" + err
+            this.$store.state.snackbar.text = "写入OBS失败：" + err.error
             this.$store.state.snackbar.show = true
           })
       } else {
@@ -663,7 +664,7 @@ export default {
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "写入OBS失败：" + err
+            this.$store.state.snackbar.text = "写入OBS失败：" + err.error
             this.$store.state.snackbar.show = true
           })
       }

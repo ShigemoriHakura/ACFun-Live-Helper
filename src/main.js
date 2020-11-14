@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.13"
+Vue.prototype.$version = "0.2.14"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
@@ -37,6 +37,7 @@ const store = new Vuex.Store({
       isLive: false,
       onlineCount: 0,
       watchingList: [],
+      billList: [],
       managerList: [],
       blockList: [],
       danmakuList: [],

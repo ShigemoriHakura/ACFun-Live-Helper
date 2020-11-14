@@ -23,7 +23,8 @@
       请先登录
     </v-container>
     <v-container v-if="$store.state.config.isLogin" style="max-width: 100%!important;">
-      房间号：{{$store.state.ACFunCommon.userId}}
+      房间号：{{$store.state.ACFunCommon.userId}}<br>
+      请注意：观众列表，投喂列表在关播后会自动清空。
       <v-tabs>
         <v-tab>
           首页
@@ -36,6 +37,9 @@
         </v-tab>
         <v-tab>
           拉黑列表 ({{$store.state.roomInfo.blockList.length}})
+        </v-tab>
+        <v-tab>
+          投喂列表 ({{$store.state.roomInfo.billList.length}})
         </v-tab>
         <v-tab-item>
           <v-row>
@@ -191,6 +195,37 @@
             </v-col>
           </v-row>
         </v-tab-item>
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12" md="12">
+              投喂列表
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">
+                        用户名
+                      </th>
+                      <th class="text-left">
+                        UID
+                      </th>
+                      <th class="text-left">
+                        AC币
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in $store.state.roomInfo.billList" :key="item.userId">
+                      <td>{{ item.nickname }}</td>
+                      <td>{{ item.userId }}</td>
+                      <td>{{ item.displaySendAmount }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-tab-item>
       </v-tabs>
     </v-container>
   </v-container>
@@ -259,6 +294,7 @@ export default {
       console.log('房间助手：直播状态变更：' + oldValue + ' -> ' + newValue)
       if (!newValue) {
         this.$store.state.roomInfo.watchingList = []
+        this.$store.state.roomInfo.billList = []
       }
     }).bind(this)
 
@@ -469,16 +505,25 @@ export default {
       if (resJson.result == 1) {
         for (let i = 0; i < resJson.data.list.length; i++) {
           const element = resJson.data.list[i];
-          let result = this.$store.state.roomInfo.watchingList.find(c => Number(c.userId) === element.userId)
-          let blockResult = this.$store.state.roomInfo.blockList.find(c => Number(c.userId) === element.userId)
-          if (blockResult) {
-            this.$store.commit('addLog', "检测到黑名单观众 " + element.nickname + "(" + element.userId + ")")
-            await this.kickUser(element.nickname, element.userId)
-          }
-          if (!result && element.userId !== this.userId && element.anonymousUser == false) {
-            this.$store.state.roomInfo.watchingList.push(element)
+          if (element.anonymousUser == false && element.userId !== this.userId) {
+            let result = this.$store.state.roomInfo.watchingList.find(c => Number(c.userId) === element.userId)
+            let blockResult = this.$store.state.roomInfo.blockList.find(c => Number(c.userId) === element.userId)
+            let billResult = this.$store.state.roomInfo.billList.find(c => Number(c.userId) === element.userId)
+            if (blockResult) {
+              this.$store.commit('addLog', "检测到黑名单观众 " + element.nickname + "(" + element.userId + ")")
+              await this.kickUser(element.nickname, element.userId)
+            }
+            if (!result) {
+              this.$store.state.roomInfo.watchingList.push(element)
+            }
+            if (!billResult && element.displaySendAmount > 0) {
+              this.$store.state.roomInfo.billList.push(element)
+            } else if (billResult) {
+              billResult.displaySendAmount = element.displaySendAmount
+            }
           }
         }
+        this.$store.state.roomInfo.billList.sort(this.sortByAmount("displaySendAmount"))
         for (let i = 0; i < this.$store.state.roomInfo.watchingList.length; i++) {
           const element = this.$store.state.roomInfo.watchingList[i];
           let result = resJson.data.list.find(c => Number(c.userId) === element.userId)
@@ -486,6 +531,13 @@ export default {
             this.$store.state.roomInfo.watchingList.splice(i, 1)
           }
         }
+      }
+    },
+    sortByAmount(prop) {
+      return function (a, b) {
+        var value1 = a[prop]
+        var value2 = b[prop]
+        return value2 - value1
       }
     },
     async fetchManagerList() {
