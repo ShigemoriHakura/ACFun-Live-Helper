@@ -34,6 +34,12 @@
 ## 下载
 1. [Releases](https://github.com/ShigemoriHakura/ACFun-Live-Helper/releases)
 
+## 发布文章
+* [网页开播的超方便小工具发布！](https://www.acfun.cn/a/ac19231355)
+
+## 给点给点
+* [茂森白咲](https://www.acfun.cn/u/35119946)
+
 ## 编译
 * npm install
 * npm run electron:build 
