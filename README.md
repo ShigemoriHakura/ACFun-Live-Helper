@@ -5,14 +5,17 @@
 * 房间观众管理
 * 拉黑观众
 * 房管管理
-* 弹幕透明浏览器显示
+* 弹幕透明置顶显示
 * 弹幕发送
 * 弹幕发送置顶窗
 * 直播开关播
 * 开播时封面和标题修改
-
-## 截图
-![使用截图](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
+* GIF封面
+* 弹幕播报
+* 弹幕互动
+* OBS推流码修改
+* 投喂列表
+* 下播后的直播详情
 
 ## 更新日志
 * 0.2.15 加入播报句式，方便自定义化。
@@ -39,6 +42,11 @@
 
 ## 给点给点
 * [茂森白咲](https://www.acfun.cn/u/35119946)
+
+## 截图
+![使用截图1](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/1.png) 
+![使用截图2](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/2.png) 
+![使用截图3](https://raw.githubusercontent.com/ShigemoriHakura/ACFun-Live-Helper/master/screenshots/3.png) 
 
 ## 编译
 * npm install
