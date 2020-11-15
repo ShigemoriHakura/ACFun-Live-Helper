@@ -363,7 +363,7 @@ export default {
       }
     },
     getFormatedText(danmaku, text) {
-      return text.replace(/%s/g, danmaku.nickname).replace(/%v/g, danmaku.content).replace(/%n/g, danmaku.num)
+      return text.replace(/%s/g, danmaku.nickname).replace(/%n/g, danmaku.num).replace(/%v/g, danmaku.content)
     },
     getFormatLiveId() {
       if (this.$store.state.roomInfo.liveId != "") {
