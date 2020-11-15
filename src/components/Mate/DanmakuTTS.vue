@@ -8,6 +8,8 @@
         <v-btn class="ma-2" elevation="2" color="success" @click="saveSettings">保存</v-btn>
       </v-col>
       <v-col cols="12" md="8">
+        <v-switch v-model="$store.state.TTSInfo.TTSgift" :label="`播报礼物: ${getStatus($store.state.TTSInfo.TTSgift)}`">
+        </v-switch>
         <v-slider :label="`语速 ${$store.state.TTSInfo.TTSspeed}`" v-model="$store.state.TTSInfo.TTSspeed" step="1"
           min="1" max="15"></v-slider>
         <v-slider :label="`语调 ${$store.state.TTSInfo.TTSpitch}`" v-model="$store.state.TTSInfo.TTSpitch" step="1"
@@ -17,8 +19,12 @@
         <v-select v-model="$store.state.TTSInfo.TTSperson" :items="availableTTSPerson" label="音库" item-text="name"
           item-value="id">
         </v-select>
-        <v-switch v-model="$store.state.TTSInfo.TTSgift" :label="`播报礼物: ${getStatus($store.state.TTSInfo.TTSgift)}`">
-        </v-switch>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onComment" label="弹幕播报句式"></v-text-field>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onGift" label="礼物播报句式"></v-text-field>
+        %s: 发送者<br>
+        %n: 礼物数量<br>
+        %v: 赠送内容 <br>
+        例子：感谢 %s 送的 %n 个 %v <br>
       </v-col>
     </v-row>
   </v-container>

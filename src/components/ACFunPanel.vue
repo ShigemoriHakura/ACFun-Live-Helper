@@ -293,6 +293,7 @@ export default {
     this.$store.watch((state) => state.roomInfo.isLive, async (newValue, oldValue) => {
       console.log('房间助手：直播状态变更：' + oldValue + ' -> ' + newValue)
       if (!newValue) {
+        this.$store.state.roomInfo.onlineCount = 0
         this.$store.state.roomInfo.watchingList = []
         this.$store.state.roomInfo.billList = []
       }
@@ -335,7 +336,8 @@ export default {
         var danmaku = this.$store.state.TTSInfo.TTSList.splice(0, 1)
         danmaku = danmaku[0]
         if (danmaku.isGift) {
-          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI("感谢" + danmaku.nickname + "送的" + danmaku.num + "个" + danmaku.content)
+          var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onGift)
+          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
           var u = new Audio(url)
           u.src = url
           u.addEventListener('play', () => {
@@ -345,7 +347,8 @@ export default {
           });
           u.play()
         } else {
-          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(danmaku.nickname + "说:" + danmaku.content)
+          var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onComment)
+          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
           var u = new Audio(url)
           u.src = url
           u.addEventListener('play', () => {
@@ -358,6 +361,9 @@ export default {
       } else {
         this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
       }
+    },
+    getFormatedText(danmaku, text) {
+      return text.replace(/%s/g, danmaku.nickname).replace(/%v/g, danmaku.content).replace(/%n/g, danmaku.num)
     },
     getFormatLiveId() {
       if (this.$store.state.roomInfo.liveId != "") {

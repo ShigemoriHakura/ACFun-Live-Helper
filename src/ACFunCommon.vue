@@ -51,9 +51,12 @@ export default {
       that.$store.state.TTSInfo.TTSvolume = TTS.TTSvolume
       that.$store.state.TTSInfo.TTSperson = TTS.TTSperson
       that.$store.state.TTSInfo.TTSgift = TTS.TTSgift
+      if (TTS.TTSLang != undefined) {
+        that.$store.state.TTSInfo.TTSLang = TTS.TTSLang
+      }
     }
 
-    that.$store.commit('addLog', "读取缓存内容完成")
+    that.$store.commit('addLog', "读取设置内容完成")
   },
 
   getMinSavedData(that) {
@@ -85,7 +88,7 @@ export default {
     econfig.set("obsInfo.obsPass", that.$store.state.obsInfo.obsPass)
     econfig.set("obsInfo.obsEnabled", that.$store.state.obsInfo.obsEnabled)
 
-    that.$store.commit('addLog', "保存缓存内容完成")
+    that.$store.commit('addLog', "保存设置内容完成")
   },
 
   saveTTSData(that) {
@@ -93,7 +96,7 @@ export default {
     //保存的房间ID，弹幕显示用
     econfig.set("config.TTSInfo", that.$store.state.TTSInfo)
 
-    that.$store.commit('addLog', "保存TTS缓存内容完成")
+    that.$store.commit('addLog', "保存TTS设置内容完成")
   },
 
   //刷新登录区逻辑

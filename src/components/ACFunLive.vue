@@ -252,7 +252,7 @@ export default {
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "自动写入OBS失败：" + err
+            this.$store.state.snackbar.text = "自动写入OBS失败：" + err.error
             this.$store.state.snackbar.show = true
           })
       }
