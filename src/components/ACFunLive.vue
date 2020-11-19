@@ -22,6 +22,36 @@
             <v-row>
               <v-col cols="12" md="7">
                 <v-img :src="getCover()"></v-img>
+                <br>
+                服务端转码情况（请尽量在出现转码信息后开播）
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left">
+                          码流名称
+                        </th>
+                        <th class="text-left">
+                          码率
+                        </th>
+                        <th class="text-left">
+                          帧数
+                        </th>
+                        <th class="text-left">
+                          分辨率
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in $store.state.liveInfo.transcodeInfoList" :key="item.qualityType">
+                        <td>{{ item.qualityTypeName }}</td>
+                        <td>{{ item.bitRate }}</td>
+                        <td>{{ item.frameRate }}</td>
+                        <td>{{ item.resolution }}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
               </v-col>
               <v-col cols="12" md="5">
                 <v-switch v-model="$store.state.liveInfo.useGifCover" label="使用GIF封面"></v-switch>
@@ -218,8 +248,8 @@ let Base64 = require("js-base64").Base64
 export default {
   name: "ACFunLive",
   data: () => ({
-    categoryId: 0,
-    concreteId: 0,
+    categoryId: 4,
+    concreteId: 402,
     //大分区
     category: [],
     //子分区
@@ -227,6 +257,11 @@ export default {
     //总数组
     categoryConcrete: [],
     getLiveStatusTimer: 0,
+
+    //开播按钮等待
+    isStarting: false,
+    //获取转码信息
+    getTranscodeInfoTimer: 0,
   }),
   async created() {
     this.categoryId = this.$store.state.liveInfo.liveCategoryId
@@ -305,6 +340,7 @@ export default {
 
     //设置定时
     this.getLiveStatusTimer = window.setInterval(this.getLiveStatus, 2 * 1000)
+    this.getTranscodeInfoTimer = window.setInterval(this.getTranscodeInfo, 2 * 1000)
   },
   watch: {
     categoryId: {
@@ -353,6 +389,21 @@ export default {
         } else {
           this.$store.state.liveInfo.isLive = false
           this.$store.state.liveInfo.liveId = ""
+        }
+      }
+    },
+    async getTranscodeInfo() {
+      if (this.$store.state.config.isLogin && this.$store.state.ACFunCommon.acfunST != "" && !this.$store.state.liveInfo.isLive && this.$store.state.liveInfo.liveStreamName != "" && this.$store.state.liveInfo.liveStreamName != undefined) {
+        var res = await this.$ACFunCommon.postHTTPResult(
+          "https://api.kuaishouzt.com/rest/zt/live/web/obs/transcodeInfo?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.$store.state.ACFunCommon.userId + "&acfun.midground.api_st=" + this.$store.state.ACFunCommon.acfunST + "&streamName=" + this.$store.state.liveInfo.liveStreamName,
+          "https://member.acfun.cn",
+          this.$store.state.ACFunCommon.acfunCookies,
+          {}
+        )
+        var resJson = JSON.parse(res.body)
+        window.console.log(resJson)
+        if (resJson.result == 1) {
+          this.$store.state.liveInfo.transcodeInfoList = resJson.data.transcodeInfoList
         }
       }
     },
@@ -426,13 +477,20 @@ export default {
       }
     },
     async startLive() {
-      this.$store.state.liveInfo.liveCategoryId = this.categoryId
-      this.$store.state.liveInfo.liveConcreteId = this.concreteId
-      this.$ACFunCommon.saveNewData(this)
-      if (this.getCover() !== null && this.$store.state.liveInfo.liveTitle !== "") {
-        await this.uploadPhoto()
+      if (!this.isStarting) {
+        this.isStarting = true
+        this.$store.state.liveInfo.liveCategoryId = this.categoryId
+        this.$store.state.liveInfo.liveConcreteId = this.concreteId
+        this.$ACFunCommon.saveNewData(this)
+        if (this.getCover() !== null && this.$store.state.liveInfo.liveTitle !== "") {
+          await this.uploadPhoto()
+        } else {
+          this.$store.state.snackbar.text = "请设置封面和标题"
+          this.$store.state.snackbar.show = true
+        }
+        this.isStarting = false
       } else {
-        this.$store.state.snackbar.text = "请设置封面和标题"
+        this.$store.state.snackbar.text = "正在尝试开播，请稍等。"
         this.$store.state.snackbar.show = true
       }
     },
@@ -634,6 +692,15 @@ export default {
             this.$ACFunCommon.saveNewData(this)
             this.$store.state.snackbar.text = "链接成功，已经启动OBS控制"
             this.$store.state.snackbar.show = true
+            obs.send('SetStreamSettings', {
+              'type': "rtmp_custom",
+              settings: {
+                server: this.$store.state.liveInfo.liveStreamUrl,
+                key: this.$store.state.liveInfo.liveStreamKey,
+                use_auth: false,
+              },
+              save: true
+            })
             obs.disconnect()
           })
           .catch(err => {

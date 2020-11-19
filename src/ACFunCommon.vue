@@ -44,7 +44,7 @@ export default {
 
     //读取TTS信息
     var TTS = econfig.get("config.TTSInfo")
-    if (TTS.isTTS != undefined) {
+    if (TTS != undefined) {
       that.$store.state.TTSInfo.isTTS = TTS.isTTS
       that.$store.state.TTSInfo.TTSspeed = TTS.TTSspeed
       that.$store.state.TTSInfo.TTSpitch = TTS.TTSpitch
@@ -69,9 +69,19 @@ export default {
   saveNewData(that) {
     //保存的房间ID，弹幕显示用
     econfig.set("config.roomId", that.$store.state.ACFunCommon.userId)
+    var cookies = []
 
+    if (that.$store.state.ACFunCommon.acfunCookies != undefined) {
+      that.$store.state.ACFunCommon.acfunCookies.forEach(element => {
+        if (element.indexOf("_did=") === 0) {
+          //window.console.log("移除did")
+        } else {
+          cookies.unshift(element)
+        }
+      });
+    }
     //保存存储的cookies
-    econfig.set("ACFunCommon.acfunCookies", that.$store.state.ACFunCommon.acfunCookies)
+    econfig.set("ACFunCommon.acfunCookies", cookies)
 
     //保存房间的拉黑列表
     econfig.set("roomInfo.blockList", that.$store.state.roomInfo.blockList)

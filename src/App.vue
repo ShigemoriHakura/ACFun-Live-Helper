@@ -55,6 +55,7 @@ export default {
         { title: '弹幕工具', icon: 'mdi-duck', link: '/mate', needIsLogin: true },
         { title: '操作日志', icon: 'mdi-history', link: '/log', needIsLogin: false },
         { title: '关于助手', icon: 'mdi-help-box', link: '/about', needIsLogin: false },
+        { title: '更新日志', icon: 'mdi-cup', link: '/history', needIsLogin: false },
       ],
       right: null,
 
@@ -90,7 +91,7 @@ export default {
     //拉缓存信息
     this.$ACFunCommon.getSavedData(this)
     this.$ACFunCommon.getDid(this)
-    if (this.$store.state.ACFunCommon.acfunCookies !== []) {
+    if (this.$store.state.ACFunCommon.acfunCookies !== [] && this.$store.state.ACFunCommon.acfunCookies !== undefined) {
       this.$store.state.config.isLogin = true
     }
   },
@@ -143,14 +144,16 @@ export default {
     onWsMessage(event) {
       let { cmd, data } = JSON.parse(event.data)
       //window.console.log(data)
-      if (data.id != 0) {
-        switch (cmd) {
-          case COMMAND_ADD_TEXT:
-            this.pushToDanmaku(data.authorName, 1, data.id, data.content, data.timestamp, false)
-            break
-          case COMMAND_ADD_GIFT:
-            this.pushToDanmaku(data.authorName, data.num, data.id, data.giftName, data.timestamp, true)
-            break
+      if (data) {
+        if (data.id != 0) {
+          switch (cmd) {
+            case COMMAND_ADD_TEXT:
+              this.pushToDanmaku(data.authorName, 1, data.id, data.content, data.timestamp, false)
+              break
+            case COMMAND_ADD_GIFT:
+              this.pushToDanmaku(data.authorName, data.num, data.id, data.giftName, data.timestamp, true)
+              break
+          }
         }
       }
     },
