@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.16"
+Vue.prototype.$version = "0.2.17"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
@@ -76,6 +76,7 @@ const store = new Vuex.Store({
       obsPort: 4444,
       obsPass: "",
       obsEnabled: false,
+      obsStopStreamingAfterClose: false,
     },
     summaryInfo: {
       liveId: "",

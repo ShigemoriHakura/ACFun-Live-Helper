@@ -41,6 +41,7 @@ export default {
     that.$store.state.obsInfo.obsPort = econfig.get("obsInfo.obsPort")
     that.$store.state.obsInfo.obsPass = econfig.get("obsInfo.obsPass")
     that.$store.state.obsInfo.obsEnabled = econfig.get("obsInfo.obsEnabled")
+    that.$store.state.obsInfo.obsStopStreamingAfterClose = econfig.get("obsInfo.obsStopStreamingAfterClose")
 
     //读取TTS信息
     var TTS = econfig.get("config.TTSInfo")
@@ -97,6 +98,7 @@ export default {
     econfig.set("obsInfo.obsPort", that.$store.state.obsInfo.obsPort)
     econfig.set("obsInfo.obsPass", that.$store.state.obsInfo.obsPass)
     econfig.set("obsInfo.obsEnabled", that.$store.state.obsInfo.obsEnabled)
+    econfig.set("obsInfo.obsStopStreamingAfterClose", that.$store.state.obsInfo.obsStopStreamingAfterClose)
 
     that.$store.commit('addLog', "保存设置内容完成")
   },

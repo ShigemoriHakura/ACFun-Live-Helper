@@ -3,7 +3,7 @@
     <v-container style="max-width: 100%!important;">
       <v-row>
         <v-col cols="12" md="12">
-          系统日志
+          更新日志
           <v-simple-table>
             <template v-slot:default>
               <thead>
@@ -17,6 +17,10 @@
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <td>0.2.17</td>
+                  <td>优化OBS控制，加入分区检测。</td>
+                </tr>
                 <tr>
                   <td>0.2.16</td>
                   <td>修复配置文件保存和读取的bug，加入流检测。</td>

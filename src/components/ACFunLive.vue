@@ -64,15 +64,22 @@
                 </v-text-field>
                 <v-text-field v-model="$store.state.liveInfo.liveStreamKey" type="text" label="推流码" disabled>
                 </v-text-field>
+                <v-btn class="ma-2" elevation="2" color="warning" v-if="$store.state.obsInfo.obsEnabled"
+                  @click="writeOBSWS">
+                  写入OBS</v-btn>
+                <v-btn class="ma-2" elevation="2" color="success" v-if="$store.state.obsInfo.obsEnabled"
+                  @click="startOBSWSStreaming">
+                  开始推流</v-btn>
+                <v-btn class="ma-2" elevation="2" color="error" v-if="$store.state.obsInfo.obsEnabled"
+                  @click="stopOBSWSStreaming">
+                  停止推流</v-btn>
+                <br>
                 <v-btn class="ma-2" elevation="2" color="primary" v-clipboard:copy="$store.state.liveInfo.liveStreamUrl"
                   v-clipboard:success="onCopy">
                   复制地址</v-btn>
                 <v-btn class="ma-2" elevation="2" color="primary" v-clipboard:copy="$store.state.liveInfo.liveStreamKey"
                   v-clipboard:success="onCopy">
                   复制推流码</v-btn>
-                <v-btn class="ma-2" elevation="2" color="warning" v-if="$store.state.obsInfo.obsEnabled"
-                  @click="writeOBSWS">
-                  写入OBS</v-btn>
                 <v-btn class="ma-2" elevation="2" color="error" @click="startLive">开播</v-btn>
               </v-col>
             </v-row>
@@ -105,6 +112,8 @@
                 请注意先打开OBS再打开助手<br>
                 <v-text-field v-model="$store.state.obsInfo.obsPort" type="number" label="OBS控制端口"></v-text-field>
                 <v-text-field v-model="$store.state.obsInfo.obsPass" type="text" label="OBS控制密码"></v-text-field>
+                <v-switch v-model="$store.state.obsInfo.obsStopStreamingAfterClose"
+                  label="关闭直播时停止推流（请注意，关闭直播是立刻关闭的，而推流到用户的延迟有6-8秒，请注意自行计算延迟）"></v-switch>
                 <v-btn class="ma-2" @click="testOBSWS" elevation="2" color="success">测试并开启</v-btn>
                 <v-btn class="ma-2" @click="resetOBSWS" elevation="2" color="error">关闭此功能</v-btn>
               </v-col>
@@ -112,7 +121,7 @@
                 设置教程：<br>
                 0.检查OBS版本是否大于25或以上<br>
                 1.安装OBS控制插件（<v-btn class="ma-2" @click="downloadOBSWS" elevation="2" color="success">点我下载</v-btn>）<br>
-                2.设置密码和端口，注意关闭“启用系统托盘通知”，不然会很吵<br>
+                2.设置密码和端口，注意关闭“启用系统托盘通知”，不然会出现很多连接和断开的通知提醒。<br>
                 3.将端口和密码写入上方对应栏目中<br>
                 4.点击测试并开启<br>
                 5.如果失败，请检查端口和密码等是否正确，端口是否堵塞等。<br>
@@ -281,13 +290,17 @@ export default {
                 use_auth: false,
               },
               save: true
-            })
-            this.$store.state.snackbar.text = "已经通知OBS修改推流信息"
-            this.$store.state.snackbar.show = true
+            }).then(() => {
+              this.$store.state.snackbar.text = "已经通知OBS修改推流信息"
+              this.$store.state.snackbar.show = true
+            }).catch(err => {
+              this.$store.state.snackbar.text = "自动写入OBS失败：" + err.error
+              this.$store.state.snackbar.show = true
+            }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "自动写入OBS失败：" + err.error
+            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
             this.$store.state.snackbar.show = true
           })
       }
@@ -482,10 +495,10 @@ export default {
         this.$store.state.liveInfo.liveCategoryId = this.categoryId
         this.$store.state.liveInfo.liveConcreteId = this.concreteId
         this.$ACFunCommon.saveNewData(this)
-        if (this.getCover() !== null && this.$store.state.liveInfo.liveTitle !== "") {
+        if (this.getCover() !== null && this.$store.state.liveInfo.liveTitle !== "" && this.checkcategoryConcrete()) {
           await this.uploadPhoto()
         } else {
-          this.$store.state.snackbar.text = "请设置封面和标题"
+          this.$store.state.snackbar.text = "请设置封面和标题和分区"
           this.$store.state.snackbar.show = true
         }
         this.isStarting = false
@@ -493,6 +506,22 @@ export default {
         this.$store.state.snackbar.text = "正在尝试开播，请稍等。"
         this.$store.state.snackbar.show = true
       }
+    },
+    checkcategoryConcrete() {
+      let result = this.category.find(
+        (c) => Number(c.categoryId) === this.$store.state.liveInfo.liveCategoryId
+      )
+      if (!result) {
+        return false
+      }
+      let concrete = this.categoryConcrete[this.$store.state.liveInfo.liveCategoryId]
+      let result1 = concrete.find(
+        (c) => Number(c.id) === this.$store.state.liveInfo.liveConcreteId
+      )
+      if (!result1) {
+        return false
+      }
+      return true
     },
     GenGuid() {
       var e, t = 0, n = (new Date).getTime().toString(32);
@@ -672,6 +701,21 @@ export default {
       var resJson = JSON.parse(res.body)
       if (resJson.result == 1) {
         this.$store.state.liveInfo.isLive = false
+        if (this.$store.state.obsInfo.obsEnabled && this.$store.state.obsInfo.obsStopStreamingAfterClose) {
+          const obs = new OBSWebSocket()
+          obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+            .then(() => {
+              obs.send('StopStreaming').catch(err => {
+                this.$store.state.snackbar.text = "自动停止推流失败：" + err.error
+                this.$store.state.snackbar.show = true
+              }).bind(this)
+              obs.disconnect()
+            })
+            .catch(err => {
+              this.$store.state.snackbar.text = "连接OBS失败：" + err.error
+              this.$store.state.snackbar.show = true
+            })
+        }
       } else {
         this.$store.state.snackbar.text = resJson.error_msg
         this.$store.state.snackbar.show = true
@@ -688,10 +732,6 @@ export default {
         const obs = new OBSWebSocket()
         obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
           .then(() => {
-            this.$store.state.obsInfo.obsEnabled = true
-            this.$ACFunCommon.saveNewData(this)
-            this.$store.state.snackbar.text = "链接成功，已经启动OBS控制"
-            this.$store.state.snackbar.show = true
             obs.send('SetStreamSettings', {
               'type': "rtmp_custom",
               settings: {
@@ -700,11 +740,19 @@ export default {
                 use_auth: false,
               },
               save: true
-            })
+            }).then(() => {
+              this.$store.state.obsInfo.obsEnabled = true
+              this.$ACFunCommon.saveNewData(this)
+              this.$store.state.snackbar.text = "链接成功，已经启动OBS控制"
+              this.$store.state.snackbar.show = true
+            }).catch(err => {
+              this.$store.state.snackbar.text = "写入OBS失败：" + err.error
+              this.$store.state.snackbar.show = true
+            }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "写入OBS失败：" + err.error
+            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
             this.$store.state.snackbar.show = true
           })
       } else {
@@ -725,13 +773,57 @@ export default {
                 use_auth: false,
               },
               save: true
-            })
-            this.$store.state.snackbar.text = "写入OBS成功"
-            this.$store.state.snackbar.show = true
+            }).then(() => {
+              this.$store.state.snackbar.text = "写入OBS成功"
+              this.$store.state.snackbar.show = true
+            }).catch(err => {
+              this.$store.state.snackbar.text = "写入OBS失败：" + err.error
+              this.$store.state.snackbar.show = true
+            }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "写入OBS失败：" + err.error
+            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
+            this.$store.state.snackbar.show = true
+          })
+      }
+    },
+    startOBSWSStreaming() {
+      if (this.$store.state.obsInfo.obsEnabled) {
+        const obs = new OBSWebSocket()
+        obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+          .then(() => {
+            obs.send('StartStreaming').then(() => {
+              this.$store.state.snackbar.text = "开始推流成功"
+              this.$store.state.snackbar.show = true
+            }).catch(err => {
+              this.$store.state.snackbar.text = "开始推流失败：" + err.error
+              this.$store.state.snackbar.show = true
+            }).bind(this)
+            obs.disconnect()
+          })
+          .catch(err => {
+            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
+            this.$store.state.snackbar.show = true
+          })
+      }
+    },
+    stopOBSWSStreaming() {
+      if (this.$store.state.obsInfo.obsEnabled) {
+        const obs = new OBSWebSocket()
+        obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+          .then(() => {
+            obs.send('StopStreaming').then(() => {
+              this.$store.state.snackbar.text = "停止推流成功"
+              this.$store.state.snackbar.show = true
+            }).catch(err => {
+              this.$store.state.snackbar.text = "停止推流失败：" + err.error
+              this.$store.state.snackbar.show = true
+            }).bind(this)
+            obs.disconnect()
+          })
+          .catch(err => {
+            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
             this.$store.state.snackbar.show = true
           })
       }
@@ -739,6 +831,8 @@ export default {
     resetOBSWS() {
       this.$store.state.obsInfo.obsEnabled = false
       this.$ACFunCommon.saveNewData(this)
+      this.$store.state.snackbar.text = "关闭成功"
+      this.$store.state.snackbar.show = true
     },
     downloadOBSWS() {
       shell.openExternal("https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/OBS/obs-websocket-4.8.0-Windows-Installer.exe")
