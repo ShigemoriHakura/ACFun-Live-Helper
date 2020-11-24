@@ -1,10 +1,16 @@
 <template>
   <v-container style="max-width: 100% !important">
     <v-container v-if="$store.state.config.isLogin" style="max-width: 100% !important">
-      <v-container v-if="!$store.state.liveInfo.isLive" style="max-width: 100% !important">
+      <v-container style="max-width: 100% !important">
         <v-tabs>
-          <v-tab>
+          <v-tab v-if="!$store.state.liveInfo.isLive">
             开播详情
+          </v-tab>
+          <v-tab v-if="$store.state.liveInfo.isLive">
+            直播间详情
+          </v-tab>
+          <v-tab>
+            封面缓存
           </v-tab>
           <v-tab>
             普通封面设置
@@ -12,13 +18,13 @@
           <v-tab>
             GIF封面设置
           </v-tab>
-          <v-tab>
+          <v-tab v-if="!$store.state.liveInfo.isLive">
             OBS控制
           </v-tab>
-          <v-tab>
+          <v-tab v-if="!$store.state.liveInfo.isLive">
             上场直播总结
           </v-tab>
-          <v-tab-item>
+          <v-tab-item v-if="!$store.state.liveInfo.isLive">
             <v-row>
               <v-col cols="12" md="7">
                 <v-img :src="getCover()"></v-img>
@@ -84,10 +90,63 @@
               </v-col>
             </v-row>
           </v-tab-item>
+          <v-tab-item v-if="$store.state.liveInfo.isLive">
+            <v-row>
+              <v-col cols="12" md="12">
+                <v-btn class="ma-2" elevation="2" color="error" @click="stopPush">关闭直播</v-btn>
+                <v-btn class="ma-2" elevation="2" color="warning" @click="changeCoverAndTitle">修改封面和标题</v-btn>
+              </v-col>
+              <v-col cols="12" md="7">
+                <v-img :src="getCover()"></v-img>
+              </v-col>
+              <v-col cols="12" md="5">
+                <v-switch v-model="$store.state.liveInfo.useGifCover" label="使用GIF封面"></v-switch>
+                <v-text-field v-model="$store.state.liveInfo.liveTitle" type="text" label="直播标题"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-tab-item>
+          <v-tab-item>
+            <v-simple-table>
+              <template v-slot:default>
+                <thead>
+                  <tr>
+                    <th class="text-left">
+                      缓存时间
+                    </th>
+                    <th class="text-left">
+                      类型
+                    </th>
+                    <th class="text-left">
+                      图片
+                    </th>
+                    <th class="text-left">
+                      操作
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in $store.state.liveInfo.cacheCovers" :key="item.uniqueId">
+                    <td>{{ item.timestamp | formatDate  }}</td>
+                    <td>{{ item.type | getPhotoType}}</td>
+                    <td>
+                      <v-img height="120px" width="200px" :src="item.cover"></v-img>
+                    </td>
+                    <td>
+                      <v-btn class="ma-2" elevation="2" color="success" @click="useFromCache(item.uniqueId)">使用图片
+                      </v-btn>
+                      <v-btn class="ma-2" elevation="2" color="error" @click="removeFromCache(item.uniqueId)">删除图片
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-tab-item>
           <v-tab-item>
             <v-row>
               <v-col cols="12" md="12">
                 上传封面：
+                <v-btn class="ma-2" @click="saveToCache(`Normal`)" elevation="2" color="success">保存至缓存</v-btn>
                 <v-image-input style="
                 height: 806px!important;
                 width: 1280px!important;
@@ -103,10 +162,11 @@
                 请自行裁切到1080*608
                 <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
                   label="上传" filled prepend-icon="mdi-camera"></v-file-input>
+                <v-btn class="ma-2" @click="saveToCache(`Gif`)" elevation="2" color="success">保存至缓存</v-btn>
               </v-col>
             </v-row>
           </v-tab-item>
-          <v-tab-item>
+          <v-tab-item v-if="!$store.state.liveInfo.isLive">
             <v-row>
               <v-col cols="12" md="12">
                 请注意先打开OBS再打开助手<br>
@@ -131,7 +191,7 @@
               </v-col>
             </v-row>
           </v-tab-item>
-          <v-tab-item>
+          <v-tab-item v-if="!$store.state.liveInfo.isLive">
             <v-row>
               <v-col cols="12" md="12">
                 <v-simple-table>
@@ -183,62 +243,9 @@
           </v-tab-item>
         </v-tabs>
       </v-container>
-      <v-container v-if="$store.state.liveInfo.isLive" style="max-width: 100% !important">
-        <v-row>
-          <v-col cols="12" md="12">
-            <v-btn class="ma-2" elevation="2" color="error" @click="stopPush">关闭直播</v-btn>
-            <v-btn class="ma-2" elevation="2" color="warning" @click="changeCoverAndTitle">修改封面和标题</v-btn>
-          </v-col>
-          <v-tabs>
-            <v-tab>
-              基础设置
-            </v-tab>
-            <v-tab>
-              普通封面上传
-            </v-tab>
-            <v-tab>
-              GIF封面上传
-            </v-tab>
-            <v-tab-item>
-              <v-row>
-                <v-col cols="12" md="7">
-                  <v-img :src="getCover()"></v-img>
-                </v-col>
-                <v-col cols="12" md="5">
-                  <v-switch v-model="$store.state.liveInfo.useGifCover" label="使用GIF封面"></v-switch>
-                  <v-text-field v-model="$store.state.liveInfo.liveTitle" type="text" label="直播标题"></v-text-field>
-                </v-col>
-              </v-row>
-            </v-tab-item>
-            <v-tab-item>
-              <v-row>
-                <v-col cols="12" md="12">
-                  普通封面裁剪：
-                  <v-image-input style="
-                height: 806px!important;
-                width: 1280px!important;
-                overflow: unset;
-              " v-model="$store.state.liveInfo.liveCover" :image-quality="0.85" clearable image-format="jpeg"
-                    :imageHeight="608" :imageWidth="1080" :fullWidth="true" :fullHeight="true" :hideActions="false" />
-                </v-col>
-              </v-row>
-            </v-tab-item>
-            <v-tab-item>
-              <v-row>
-                <v-col cols="12" md="12">
-                  上传GIF封面：<br>
-                  请自行裁切到1080*608
-                  <v-file-input v-model="$store.state.liveInfo.liveCoverGifFile" show-size counter accept="image/gif"
-                    label="上传" filled prepend-icon="mdi-camera"></v-file-input>
-                </v-col>
-              </v-row>
-            </v-tab-item>
-          </v-tabs>
-        </v-row>
-      </v-container>
     </v-container>
     <v-container v-if="!$store.state.config.isLogin" style="max-width: 100%!important;">
-      请先登录
+      请先登录账号再使用本功能！
     </v-container>
   </v-container>
 </template>
@@ -250,6 +257,7 @@ import got from "got"
 import axios from 'axios'
 import OBSWebSocket from 'obs-websocket-js'
 import { shell } from 'electron'
+import { formatDate } from '@/utils/timeFormat'
 
 const econfig = new eConfig()
 let Base64 = require("js-base64").Base64
@@ -269,6 +277,8 @@ export default {
 
     //开播按钮等待
     isStarting: false,
+    //关播按钮等待
+    isClosing: false,
     //获取转码信息
     getTranscodeInfoTimer: 0,
   }),
@@ -291,17 +301,14 @@ export default {
               },
               save: true
             }).then(() => {
-              this.$store.state.snackbar.text = "已经通知OBS修改推流信息"
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("已经通知OBS修改推流信息")
             }).catch(err => {
-              this.$store.state.snackbar.text = "自动写入OBS失败：" + err.error
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("自动写入OBS失败：" + err.error)
             }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
-            this.$store.state.snackbar.show = true
+            this.showSnackbar("连接OBS失败：" + err.error)
           })
       }
     }).bind(this)
@@ -362,8 +369,23 @@ export default {
       },
     },
   },
+  filters: {
+    formatDate(time) {
+      let date = new Date(time)
+      return formatDate(date, 'yyyy-MM-dd hh:mm')
+    },
+    getPhotoType(type) {
+      switch (type) {
+        case "Normal":
+          return "图片"
+        case "Gif":
+          return "GIF"
+      }
+    }
+  },
   beforeDestroy() {
     window.clearInterval(this.getLiveStatusTimer)
+    window.clearInterval(this.getTranscodeInfoTimer)
   },
   methods: {
     getFormatedDuration(time) {
@@ -383,8 +405,7 @@ export default {
       return (Array(len).join(0) + num).slice(-len);
     },
     onCopy: function () {
-      this.$store.state.snackbar.text = "复制成功"
-      this.$store.state.snackbar.show = true
+      this.showSnackbar("复制成功")
     },
     async getLiveStatus() {
       if (this.$store.state.config.isLogin && this.$store.state.ACFunCommon.acfunST != "") {
@@ -498,13 +519,11 @@ export default {
         if (this.getCover() !== null && this.$store.state.liveInfo.liveTitle !== "" && this.checkcategoryConcrete()) {
           await this.uploadPhoto()
         } else {
-          this.$store.state.snackbar.text = "请设置封面和标题和分区"
-          this.$store.state.snackbar.show = true
+          this.showSnackbar("请设置封面和标题和分区")
         }
         this.isStarting = false
       } else {
-        this.$store.state.snackbar.text = "正在尝试开播，请稍等。"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("正在尝试开播，请稍等。")
       }
     },
     checkcategoryConcrete() {
@@ -582,8 +601,7 @@ export default {
           await this.startPush()
         }
       } else {
-        this.$store.state.snackbar.text = res.body
-        this.$store.state.snackbar.show = true
+        this.showSnackbar(res.body)
       }
     },
     async startPush() {
@@ -636,8 +654,7 @@ export default {
         this.$store.state.liveInfo.isLive = true
         this.$store.state.liveInfo.liveId = resJson.data.liveId
       } else {
-        this.$store.state.snackbar.text = resJson.error_msg
-        this.$store.state.snackbar.show = true
+        this.showSnackbar(resJson.error_msg)
       }
     },
     async changeCoverAndTitle() {
@@ -682,43 +699,44 @@ export default {
       )
       var resJson = JSON.parse(res.body)
       if (resJson.result == 1) {
-        this.$store.state.snackbar.text = "提交成功"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("提交成功")
       } else {
-        this.$store.state.snackbar.text = resJson.error_msg
-        this.$store.state.snackbar.show = true
+        this.showSnackbar(resJson.error_msg)
       }
     },
     async stopPush() {
-      var res = await this.$ACFunCommon.postHTTPResult(
-        "https://api.kuaishouzt.com/rest/zt/live/web/obs/stopPush?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.$store.state.ACFunCommon.userId + "&acfun.midground.api_st=" + this.$store.state.ACFunCommon.acfunST,
-        "https://member.acfun.cn",
-        this.$store.state.ACFunCommon.acfunCookies,
-        {
-          liveId: this.$store.state.liveInfo.liveId
+      if (!this.isClosing) {
+        this.isClosing = true
+        var res = await this.$ACFunCommon.postHTTPResult(
+          "https://api.kuaishouzt.com/rest/zt/live/web/obs/stopPush?kpn=ACFUN_APP&kpf=PC_WEB&subBiz=mainApp&userId=" + this.$store.state.ACFunCommon.userId + "&acfun.midground.api_st=" + this.$store.state.ACFunCommon.acfunST,
+          "https://member.acfun.cn",
+          this.$store.state.ACFunCommon.acfunCookies,
+          {
+            liveId: this.$store.state.liveInfo.liveId
+          }
+        )
+        var resJson = JSON.parse(res.body)
+        if (resJson.result == 1) {
+          this.$store.state.liveInfo.isLive = false
+          if (this.$store.state.obsInfo.obsEnabled && this.$store.state.obsInfo.obsStopStreamingAfterClose) {
+            const obs = new OBSWebSocket()
+            obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
+              .then(() => {
+                obs.send('StopStreaming').catch(err => {
+                  this.showSnackbar("自动停止推流失败：" + err.error)
+                }).bind(this)
+                obs.disconnect()
+              })
+              .catch(err => {
+                this.showSnackbar("连接OBS失败：" + err.error)
+              })
+          }
+        } else {
+          this.showSnackbar(resJson.error_msg)
         }
-      )
-      var resJson = JSON.parse(res.body)
-      if (resJson.result == 1) {
-        this.$store.state.liveInfo.isLive = false
-        if (this.$store.state.obsInfo.obsEnabled && this.$store.state.obsInfo.obsStopStreamingAfterClose) {
-          const obs = new OBSWebSocket()
-          obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
-            .then(() => {
-              obs.send('StopStreaming').catch(err => {
-                this.$store.state.snackbar.text = "自动停止推流失败：" + err.error
-                this.$store.state.snackbar.show = true
-              }).bind(this)
-              obs.disconnect()
-            })
-            .catch(err => {
-              this.$store.state.snackbar.text = "连接OBS失败：" + err.error
-              this.$store.state.snackbar.show = true
-            })
-        }
+        this.isClosing = false
       } else {
-        this.$store.state.snackbar.text = resJson.error_msg
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("正在尝试关播，请稍等。")
       }
     },
     getCover() {
@@ -743,21 +761,17 @@ export default {
             }).then(() => {
               this.$store.state.obsInfo.obsEnabled = true
               this.$ACFunCommon.saveNewData(this)
-              this.$store.state.snackbar.text = "链接成功，已经启动OBS控制"
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("链接成功，已经启动OBS控制")
             }).catch(err => {
-              this.$store.state.snackbar.text = "写入OBS失败：" + err.error
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("写入OBS失败：" + err.error)
             }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
-            this.$store.state.snackbar.show = true
+            this.showSnackbar("连接OBS失败：" + err.error)
           })
       } else {
-        this.$store.state.snackbar.text = "请好好填写OBS控制端口"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("请好好填写OBS控制端口")
       }
     },
     writeOBSWS() {
@@ -774,17 +788,14 @@ export default {
               },
               save: true
             }).then(() => {
-              this.$store.state.snackbar.text = "写入OBS成功"
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("写入OBS成功")
             }).catch(err => {
-              this.$store.state.snackbar.text = "写入OBS失败：" + err.error
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("写入OBS失败：" + err.error)
             }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
-            this.$store.state.snackbar.show = true
+            this.showSnackbar("连接OBS失败：" + err.error)
           })
       }
     },
@@ -794,17 +805,14 @@ export default {
         obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
           .then(() => {
             obs.send('StartStreaming').then(() => {
-              this.$store.state.snackbar.text = "开始推流成功"
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("开始推流成功")
             }).catch(err => {
-              this.$store.state.snackbar.text = "开始推流失败：" + err.error
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("开始推流失败：" + err.error)
             }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
-            this.$store.state.snackbar.show = true
+            this.showSnackbar("连接OBS失败：" + err.error)
           })
       }
     },
@@ -814,28 +822,86 @@ export default {
         obs.connect({ address: 'localhost:' + this.$store.state.obsInfo.obsPort, password: this.$store.state.obsInfo.obsPass })
           .then(() => {
             obs.send('StopStreaming').then(() => {
-              this.$store.state.snackbar.text = "停止推流成功"
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("停止推流成功")
             }).catch(err => {
-              this.$store.state.snackbar.text = "停止推流失败：" + err.error
-              this.$store.state.snackbar.show = true
+              this.showSnackbar("停止推流失败：" + err.error)
             }).bind(this)
             obs.disconnect()
           })
           .catch(err => {
-            this.$store.state.snackbar.text = "连接OBS失败：" + err.error
-            this.$store.state.snackbar.show = true
+            this.showSnackbar("连接OBS失败：" + err.error)
           })
       }
     },
     resetOBSWS() {
       this.$store.state.obsInfo.obsEnabled = false
       this.$ACFunCommon.saveNewData(this)
-      this.$store.state.snackbar.text = "关闭成功"
+      this.showSnackbar("关闭成功")
+    },
+    showSnackbar(content) {
+      this.$store.state.snackbar.text = content
       this.$store.state.snackbar.show = true
     },
     downloadOBSWS() {
       shell.openExternal("https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/OBS/obs-websocket-4.8.0-Windows-Installer.exe")
+    },
+    saveToCache(type) {
+      switch (type) {
+        case "Normal":
+          if (this.$store.state.liveInfo.liveCover != null && this.$store.state.liveInfo.liveCover != undefined) {
+            this.$store.state.liveInfo.cacheCovers.push({
+              type: "Normal",
+              uniqueId: this.GenGuid(),
+              timestamp: Date.now(),
+              cover: this.$store.state.liveInfo.liveCover
+            })
+            this.$ACFunCommon.saveNewData(this)
+            this.showSnackbar("保存成功")
+          } else {
+            this.showSnackbar("请先设置图片")
+          }
+          break
+        case "Gif":
+          if (this.$store.state.liveInfo.liveCoverGif != null && this.$store.state.liveInfo.liveCoverGif != undefined) {
+            this.$store.state.liveInfo.cacheCovers.push({
+              type: "Gif",
+              uniqueId: this.GenGuid(),
+              timestamp: Date.now(),
+              cover: this.$store.state.liveInfo.liveCoverGif
+            })
+            this.$ACFunCommon.saveNewData(this)
+            this.showSnackbar("保存成功")
+          } else {
+            this.showSnackbar("请先设置图片")
+          }
+          break
+      }
+    },
+    useFromCache(uniqueId) {
+      for (let i = 0; i < this.$store.state.liveInfo.cacheCovers.length; i++) {
+        const element = this.$store.state.liveInfo.cacheCovers[i];
+        if (element.uniqueId == uniqueId) {
+          switch (element.type) {
+            case "Normal":
+              this.$store.state.liveInfo.liveCover = element.cover
+              break
+            case "Gif":
+              this.$store.state.liveInfo.liveCoverGif = element.cover
+              break
+          }
+        }
+      }
+      this.showSnackbar("使用成功")
+    },
+    removeFromCache(uniqueId) {
+      for (let i = 0; i < this.$store.state.liveInfo.cacheCovers.length; i++) {
+        const element = this.$store.state.liveInfo.cacheCovers[i];
+        if (element.uniqueId == uniqueId) {
+          this.$store.state.liveInfo.cacheCovers.splice(i, 1)
+        }
+      }
+      this.$ACFunCommon.saveNewData(this)
+      this.showSnackbar("删除成功")
     }
   },
 };

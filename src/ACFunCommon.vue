@@ -30,12 +30,18 @@ export default {
     that.$store.state.liveInfo.liveTitle = econfig.get("liveInfo.liveTitle")
     that.$store.state.liveInfo.liveCategoryId = econfig.get("liveInfo.liveCategoryId")
     that.$store.state.liveInfo.liveConcreteId = econfig.get("liveInfo.liveConcreteId")
+    var cacheCovers = econfig.get("liveInfo.cacheCovers")
     //判断存储的封面情况
     if (liveCover !== undefined) {
       that.$store.state.liveInfo.liveCover = liveCover
     }
     if (liveCoverGif !== undefined) {
       that.$store.state.liveInfo.liveCoverGif = liveCoverGif
+    }
+    if (cacheCovers !== undefined && Array.isArray(cacheCovers)) {
+      that.$store.state.liveInfo.cacheCovers = cacheCovers
+    } else {
+      that.$store.state.liveInfo.cacheCovers = []
     }
 
     that.$store.state.obsInfo.obsPort = econfig.get("obsInfo.obsPort")
@@ -94,6 +100,7 @@ export default {
     econfig.set("liveInfo.liveTitle", that.$store.state.liveInfo.liveTitle)
     econfig.set("liveInfo.liveCategoryId", that.$store.state.liveInfo.liveCategoryId)
     econfig.set("liveInfo.liveConcreteId", that.$store.state.liveInfo.liveConcreteId)
+    econfig.set("liveInfo.cacheCovers", that.$store.state.liveInfo.cacheCovers)
 
     econfig.set("obsInfo.obsPort", that.$store.state.obsInfo.obsPort)
     econfig.set("obsInfo.obsPass", that.$store.state.obsInfo.obsPass)

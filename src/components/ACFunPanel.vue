@@ -20,7 +20,7 @@
       </v-dialog>
     </div>
     <v-container v-if="!$store.state.config.isLogin" style="max-width: 100%!important;">
-      请先登录
+      请先登录账号再使用本功能！
     </v-container>
     <v-container v-if="$store.state.config.isLogin" style="max-width: 100%!important;">
       房间号：{{$store.state.ACFunCommon.userId}}<br>
@@ -285,8 +285,7 @@ export default {
     this.$store.watch((state) => state.roomInfo.liveId, async (newValue, oldValue) => {
       console.log('房间助手：liveId变更：' + oldValue + ' -> ' + newValue)
       if (newValue != "") {
-        this.$store.state.snackbar.text = "检测到开播"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("检测到开播")
       }
     }).bind(this)
 
@@ -326,6 +325,10 @@ export default {
     this.processTTSQueue()
   },
   methods: {
+    showSnackbar(content) {
+      this.$store.state.snackbar.text = content
+      this.$store.state.snackbar.show = true
+    },
     processTTSQueue() {
       //Todo: 改成处理时候再拼装
       if (this.TTSTimer != null) {
@@ -467,8 +470,7 @@ export default {
     async sendDanmaku(Danmaku) {
       if (this.$store.state.roomInfo.isLive) {
         if (Danmaku == "") {
-          this.$store.state.snackbar.text = "请输入内容"
-          this.$store.state.snackbar.show = true
+          this.showSnackbar("请输入内容")
           return
         }
         var res = await this.$ACFunCommon.postHTTPResult(
@@ -484,17 +486,14 @@ export default {
         var resJson = JSON.parse(res.body)
         if (resJson.result == 1) {
           this.danmakuText = ""
-          this.$store.state.snackbar.text = "弹幕 " + Danmaku + " 发送成功"
-          this.$store.state.snackbar.show = true
           this.$store.commit('addLog', "弹幕 " + Danmaku + " 发送成功")
+          this.showSnackbar("弹幕 " + Danmaku + " 发送成功")
         } else {
           this.$store.commit('addLog', "弹幕 " + Danmaku + " 发送失败（" + resJson.error_msg + "）")
-          this.$store.state.snackbar.text = resJson.error_msg
-          this.$store.state.snackbar.show = true
+          this.showSnackbar(resJson.error_msg)
         }
       } else {
-        this.$store.state.snackbar.text = "请先开播"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("请先开播")
       }
     },
     async fetchWatchingList() {
@@ -592,12 +591,10 @@ export default {
           this.$store.commit('addLog', "主播账号踢人 " + userName + "(" + userId + ") 成功")
         } else {
           this.$store.commit('addLog', "主播账号踢人 " + userName + "(" + userId + ") 失败（" + resJson.error_msg + "）")
-          this.$store.state.snackbar.text = resJson.error_msg
-          this.$store.state.snackbar.show = true
+          this.showSnackbar(resJson.error_msg)
         }
       } else {
-        this.$store.state.snackbar.text = "请先开播"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("请先开播")
       }
     },
     async addManager(userName, ManagerId) {
@@ -610,12 +607,10 @@ export default {
       var resJson = JSON.parse(res.body)
       if (resJson.result == 1) {
         this.$store.commit('addLog', "添加房管 " + userName + "(" + ManagerId + ") 成功")
-        this.$store.state.snackbar.text = "操作成功"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("操作成功")
       } else {
         this.$store.commit('addLog', "添加房管 " + userName + "(" + ManagerId + ") 失败（" + resJson.error_msg + "）")
-        this.$store.state.snackbar.text = resJson.error_msg
-        this.$store.state.snackbar.show = true
+        this.showSnackbar(resJson.error_msg)
       }
     },
     async deleteManager(userName, ManagerId) {
@@ -628,12 +623,10 @@ export default {
       var resJson = JSON.parse(res.body)
       if (resJson.result == 1) {
         this.$store.commit('addLog', "移除房管 " + userName + "(" + ManagerId + ") 成功")
-        this.$store.state.snackbar.text = "操作成功"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("操作成功")
       } else {
         this.$store.commit('addLog', "移除房管 " + userName + "(" + ManagerId + ") 失败（" + resJson.error_msg + "）")
-        this.$store.state.snackbar.text = resJson.error_msg
-        this.$store.state.snackbar.show = true
+        this.showSnackbar(resJson.error_msg)
       }
     },
     blockUser(userName, userId) {
@@ -643,8 +636,7 @@ export default {
       })
       this.$store.commit('addLog', "拉黑观众 " + userName + "(" + userId + ") 成功")
       this.$ACFunCommon.saveNewData(this)
-      this.$store.state.snackbar.text = "操作成功"
-      this.$store.state.snackbar.show = true
+      this.showSnackbar("操作成功")
     },
     unblockUser(userName, userId) {
       let result = this.$store.state.roomInfo.blockList.find(c => Number(c.userId) === userId)
@@ -652,8 +644,7 @@ export default {
         this.$store.state.roomInfo.blockList.splice(result, 1)
         this.$store.commit('addLog', "取消拉黑观众 " + userName + "(" + userId + ") 成功")
         this.$ACFunCommon.saveNewData(this)
-        this.$store.state.snackbar.text = "操作成功"
-        this.$store.state.snackbar.show = true
+        this.showSnackbar("操作成功")
       }
     },
     switchDanmakuHime() {
