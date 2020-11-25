@@ -132,9 +132,9 @@
                       <v-img height="120px" width="200px" :src="item.cover"></v-img>
                     </td>
                     <td>
-                      <v-btn class="ma-2" elevation="2" color="success" @click="useFromCache(item.uniqueId)">使用图片
+                      <v-btn class="ma-2" elevation="2" color="success" @click="useFromCache(item.uniqueId)">使用
                       </v-btn>
-                      <v-btn class="ma-2" elevation="2" color="error" @click="removeFromCache(item.uniqueId)">删除图片
+                      <v-btn class="ma-2" elevation="2" color="error" @click="removeFromCache(item.uniqueId)">删除
                       </v-btn>
                     </td>
                   </tr>

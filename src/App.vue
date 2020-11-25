@@ -53,6 +53,7 @@ export default {
         { title: '房间助手', icon: 'mdi-view-dashboard', link: '/', needIsLogin: true },
         { title: '直播开播', icon: 'mdi-remote', link: '/live', needIsLogin: true },
         { title: '弹幕工具', icon: 'mdi-duck', link: '/mate', needIsLogin: true },
+        { title: '主站工具', icon: 'mdi-clippy', link: '/fun', needIsLogin: false },
         { title: '操作日志', icon: 'mdi-history', link: '/log', needIsLogin: false },
         { title: '关于助手', icon: 'mdi-help-box', link: '/about', needIsLogin: false },
         { title: '更新日志', icon: 'mdi-cup', link: '/history', needIsLogin: false },

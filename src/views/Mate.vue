@@ -14,9 +14,6 @@
         <v-tab>
           弹幕点歌
         </v-tab>
-        <v-tab>
-          弹幕播报
-        </v-tab>
         <v-tab-item>
           请在登录后开播使用，如果有其他需求，请联系作者。
           <v-img height="650px" src="@/assets/img/neko.png"></v-img>
@@ -30,9 +27,6 @@
         <v-tab-item>
           <DanmakuSong />
         </v-tab-item>
-        <v-tab-item>
-          <DanmakuTTS />
-        </v-tab-item>
       </v-tabs>
     </v-container>
   </div>
@@ -43,7 +37,6 @@ import { formatDate } from '@/utils/timeFormat'
 import DanmakuVote from '@/components/Mate/DanmakuVote.vue'
 import DanmakuDraw from '@/components/Mate/DanmakuDraw.vue'
 import DanmakuSong from '@/components/Mate/DanmakuSong.vue'
-import DanmakuTTS from '@/components/Mate/DanmakuTTS.vue'
 
 export default {
   data() {
@@ -54,7 +47,6 @@ export default {
     DanmakuVote,
     DanmakuDraw,
     DanmakuSong,
-    DanmakuTTS,
   },
   filters: {
     formatDate(time) {

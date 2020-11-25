@@ -10,7 +10,7 @@
             欢迎你，{{$store.state.ACFunCommon.userName}}（UID：{{$store.state.ACFunCommon.userId}}）
           </v-col>
           <v-col cols="12" md="6">
-            <v-btn class="ma-2" elevation="2" color="error" @click="logoutAccunt">登出账号</v-btn>
+            <v-btn class="ma-2" elevation="2" color="error" @click="logoutAccunt">登出</v-btn>
           </v-col>
         </v-row>
       </v-container>

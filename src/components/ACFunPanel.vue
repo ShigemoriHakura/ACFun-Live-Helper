@@ -41,6 +41,9 @@
         <v-tab>
           投喂列表 ({{$store.state.roomInfo.billList.length}})
         </v-tab>
+        <v-tab>
+          弹幕播报
+        </v-tab>
         <v-tab-item>
           <v-row>
             <v-col cols="12" md="6">
@@ -226,6 +229,9 @@
             </v-col>
           </v-row>
         </v-tab-item>
+        <v-tab-item>
+          <DanmakuTTS />
+        </v-tab-item>
       </v-tabs>
     </v-container>
   </v-container>
@@ -239,6 +245,7 @@ import { remote, shell } from 'electron'
 import { formatDate } from '@/utils/timeFormat'
 import yaml from "js-yaml"
 import { version } from 'js-base64'
+import DanmakuTTS from '@/components/Mate/DanmakuTTS.vue'
 
 export default {
   name: 'ACFunPanel',
@@ -258,6 +265,9 @@ export default {
 
     TTSTimer: 0,
   }),
+  components: {
+    DanmakuTTS,
+  },
   watch: {
     categoryId: {
       handler(val) {
