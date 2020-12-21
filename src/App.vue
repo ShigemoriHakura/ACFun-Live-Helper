@@ -182,16 +182,18 @@ export default {
       })
     },
     pushToTTS(name, num, id, danmaku, timestamp, isGift, tid) {
-      this.$store.state.TTSInfo.TTSList.push({
-        nickname: name,
-        userId: id,
-        content: danmaku,
-        time: timestamp,
-        isGift: isGift,
-        num: num,
-        uniqueId: Date.now() + id + danmaku,
-        type: tid
-      })
+      if (this.$store.state.TTSInfo.isTTS) {
+        this.$store.state.TTSInfo.TTSList.push({
+          nickname: name,
+          userId: id,
+          content: danmaku,
+          time: timestamp,
+          isGift: isGift,
+          num: num,
+          uniqueId: Date.now() + id + danmaku,
+          type: tid
+        })
+      }
     }
   }
 }
