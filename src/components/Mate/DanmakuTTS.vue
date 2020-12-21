@@ -19,8 +19,16 @@
         <v-select v-model="$store.state.TTSInfo.TTSperson" :items="availableTTSPerson" label="音库" item-text="name"
           item-value="id">
         </v-select>
-        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onComment" label="弹幕播报句式"></v-text-field>
-        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onGift" label="礼物播报句式"></v-text-field>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onComment" placeholder="%s 说 %v" label="弹幕播报句式">
+        </v-text-field>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onGift" placeholder="感谢 %s 送的 %n 个 %v" label="礼物播报句式">
+        </v-text-field>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onJoin" placeholder="欢迎 %s 来到直播间" label="欢迎播报句式">
+        </v-text-field>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onFollow" placeholder="感谢 %s 的关注" label="关注播报句式">
+        </v-text-field>
+        <v-text-field v-model="$store.state.TTSInfo.TTSLang.onJoinClub" placeholder="感谢 %s 加入守护团" label="加入守护团播报句式">
+        </v-text-field>
         %s: 发送者<br>
         %n: 礼物数量<br>
         %v: 赠送内容 <br>
@@ -91,7 +99,8 @@ export default {
         time: Date.now(),
         isGift: false,
         num: 1,
-        uniqueId: Date.now() + 1 + danmaku
+        uniqueId: Date.now() + 1 + danmaku,
+        type: 2,
       })
     },
     saveSettings() {

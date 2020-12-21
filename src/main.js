@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.19"
+Vue.prototype.$version = "0.2.20"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({
@@ -54,7 +54,10 @@ const store = new Vuex.Store({
       TTSLang: {
         onComment: "%s 说 %v",
         onGift: "感谢 %s 送的 %n 个 %v",
-      }
+        onJoin: "欢迎 %s 来到直播间",
+        onFollow: "感谢 %s 的关注",
+        onJoinClub: "感谢 %s 加入守护团",
+      },
     },
     liveInfo: {
       isLive: false,

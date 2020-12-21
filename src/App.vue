@@ -39,6 +39,8 @@ const COMMAND_HEARTBEAT = 0
 const COMMAND_JOIN_ROOM = 1
 const COMMAND_ADD_TEXT = 2
 const COMMAND_ADD_GIFT = 3
+const COMMAND_ADD_FOLLOW = 10
+const COMMAND_ADD_JOIN_GROUP = 11
 
 export default {
   name: 'App',
@@ -149,16 +151,25 @@ export default {
         if (data.id != 0) {
           switch (cmd) {
             case COMMAND_ADD_TEXT:
-              this.pushToDanmaku(data.authorName, 1, data.id, data.content, data.timestamp, false)
+              this.pushToDanmaku(data.authorName, 1, data.id, data.content, data.timestamp, false, COMMAND_ADD_TEXT)
               break
             case COMMAND_ADD_GIFT:
-              this.pushToDanmaku(data.authorName, data.num, data.id, data.giftName, data.timestamp, true)
+              this.pushToDanmaku(data.authorName, data.num, data.id, data.giftName, data.timestamp, true, COMMAND_ADD_GIFT)
+              break
+            case COMMAND_ADD_FOLLOW:
+              this.pushToTTS(data.authorName, data.num, data.id, data.content, data.timestamp, false, COMMAND_ADD_FOLLOW)
+              break
+            case COMMAND_JOIN_ROOM:
+              this.pushToTTS(data.authorName, data.num, data.id, data.content, data.timestamp, false, COMMAND_JOIN_ROOM)
+              break
+            case COMMAND_ADD_JOIN_GROUP:
+              this.pushToTTS(data.authorName, data.num, data.id, data.content, data.timestamp, false, COMMAND_ADD_JOIN_GROUP)
               break
           }
         }
       }
     },
-    pushToDanmaku(name, num, id, danmaku, timestamp, isGift) {
+    pushToDanmaku(name, num, id, danmaku, timestamp, isGift, tid) {
       this.$store.state.roomInfo.danmakuList.unshift({
         nickname: name,
         userId: id,
@@ -166,7 +177,20 @@ export default {
         time: timestamp,
         isGift: isGift,
         num: num,
-        uniqueId: Date.now() + id + danmaku
+        uniqueId: Date.now() + id + danmaku,
+        type: tid
+      })
+    },
+    pushToTTS(name, num, id, danmaku, timestamp, isGift, tid) {
+      this.$store.state.TTSInfo.TTSList.unshift({
+        nickname: name,
+        userId: id,
+        content: danmaku,
+        time: timestamp,
+        isGift: isGift,
+        num: num,
+        uniqueId: Date.now() + id + danmaku,
+        type: tid
       })
     }
   }
