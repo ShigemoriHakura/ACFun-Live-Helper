@@ -18,6 +18,10 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>0.2.21</td>
+                  <td>修复播报顺序。</td>
+                </tr>
+                <tr>
                   <td>0.2.20</td>
                   <td>优化TTS语音播报。</td>
                 </tr>

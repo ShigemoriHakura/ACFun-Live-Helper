@@ -170,7 +170,7 @@ export default {
       }
     },
     pushToDanmaku(name, num, id, danmaku, timestamp, isGift, tid) {
-      this.$store.state.roomInfo.danmakuList.unshift({
+      this.$store.state.roomInfo.danmakuList.push({
         nickname: name,
         userId: id,
         content: danmaku,
