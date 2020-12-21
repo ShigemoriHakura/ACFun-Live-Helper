@@ -18,6 +18,10 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>0.2.22</td>
+                  <td>。。。</td>
+                </tr>
+                <tr>
                   <td>0.2.21</td>
                   <td>修复播报顺序。</td>
                 </tr>

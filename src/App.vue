@@ -170,7 +170,7 @@ export default {
       }
     },
     pushToDanmaku(name, num, id, danmaku, timestamp, isGift, tid) {
-      this.$store.state.roomInfo.danmakuList.push({
+      this.$store.state.roomInfo.danmakuList.unshift({
         nickname: name,
         userId: id,
         content: danmaku,
@@ -182,7 +182,7 @@ export default {
       })
     },
     pushToTTS(name, num, id, danmaku, timestamp, isGift, tid) {
-      this.$store.state.TTSInfo.TTSList.unshift({
+      this.$store.state.TTSInfo.TTSList.push({
         nickname: name,
         userId: id,
         content: danmaku,
