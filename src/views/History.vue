@@ -18,6 +18,14 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>0.2.24</td>
+                  <td>修复历史遗留问题</td>
+                </tr>
+                <tr>
+                  <td>0.2.23</td>
+                  <td>。。。</td>
+                </tr>
+                <tr>
                   <td>0.2.22</td>
                   <td>。。。</td>
                 </tr>

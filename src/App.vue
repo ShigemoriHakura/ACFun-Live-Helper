@@ -151,46 +151,46 @@ export default {
         if (data.id != 0) {
           switch (cmd) {
             case COMMAND_ADD_TEXT:
-              this.pushToDanmaku(data.authorName, 1, data.id, data.content, data.timestamp, false, COMMAND_ADD_TEXT)
+              this.pushToDanmaku(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_TEXT, data.id)
               break
             case COMMAND_ADD_GIFT:
-              this.pushToDanmaku(data.authorName, data.num, data.id, data.giftName, data.timestamp, true, COMMAND_ADD_GIFT)
+              this.pushToDanmaku(data.authorName, data.num, data.userId, data.giftName, data.timestamp, true, COMMAND_ADD_GIFT, data.id)
               break
             case COMMAND_ADD_FOLLOW:
-              this.pushToTTS(data.authorName, data.num, data.id, data.content, data.timestamp, false, COMMAND_ADD_FOLLOW)
+              this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_FOLLOW, data.id)
               break
             case COMMAND_JOIN_ROOM:
-              this.pushToTTS(data.authorName, data.num, data.id, data.content, data.timestamp, false, COMMAND_JOIN_ROOM)
+              this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_JOIN_ROOM, data.id)
               break
             case COMMAND_ADD_JOIN_GROUP:
-              this.pushToTTS(data.authorName, data.num, data.id, data.content, data.timestamp, false, COMMAND_ADD_JOIN_GROUP)
+              this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_JOIN_GROUP, data.id)
               break
           }
         }
       }
     },
-    pushToDanmaku(name, num, id, danmaku, timestamp, isGift, tid) {
+    pushToDanmaku(name, num, uid, danmaku, timestamp, isGift, tid, id) {
       this.$store.state.roomInfo.danmakuList.unshift({
         nickname: name,
-        userId: id,
+        userId: uid,
         content: danmaku,
         time: timestamp,
         isGift: isGift,
         num: num,
-        uniqueId: Date.now() + id + danmaku,
+        uniqueId: Date.now() + id,
         type: tid
       })
     },
-    pushToTTS(name, num, id, danmaku, timestamp, isGift, tid) {
+    pushToTTS(name, num, uid, danmaku, timestamp, isGift, tid, id) {
       if (this.$store.state.TTSInfo.isTTS) {
         this.$store.state.TTSInfo.TTSList.push({
           nickname: name,
-          userId: id,
+          userId: uid,
           content: danmaku,
           time: timestamp,
           isGift: isGift,
           num: num,
-          uniqueId: Date.now() + id + danmaku,
+          uniqueId: Date.now() + id,
           type: tid
         })
       }
