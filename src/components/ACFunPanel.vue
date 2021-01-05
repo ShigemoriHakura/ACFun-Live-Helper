@@ -354,9 +354,42 @@ export default {
         console.log("处理TTS队列")
         var danmaku = this.$store.state.TTSInfo.TTSList.splice(0, 1)
         danmaku = danmaku[0]
+
+        var url = ""
+
         if (danmaku.isGift) {
           var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onGift)
-          var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+          url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+        } else {
+          switch (danmaku.type) {
+            case COMMAND_JOIN_ROOM:
+              if (this.$store.state.TTSInfo.TTSLang.onJoin != "") {
+                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoin)
+                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+              }
+              break
+            case COMMAND_ADD_TEXT:
+              if (this.$store.state.TTSInfo.TTSLang.onComment != "") {
+                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onComment)
+                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+              }
+              break
+            case COMMAND_ADD_FOLLOW:
+              if (this.$store.state.TTSInfo.TTSLang.onFollow != "") {
+                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onFollow)
+                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+              }
+              break
+            case COMMAND_ADD_JOIN_GROUP:
+              if (this.$store.state.TTSInfo.TTSLang.onJoinClub != "") {
+                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoinClub)
+                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+              }
+              break
+          }
+        }
+
+        if (url != "") {
           var u = new Audio(url)
           u.src = url
           u.addEventListener('play', () => {
@@ -364,67 +397,15 @@ export default {
               this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
             }, 800)
           });
-          u.play()
+          u.play().catch((e) => {
+            window.clearInterval(this.TTSTimer);
+            this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
+            console.error(e);
+          });
         } else {
-          switch (danmaku.type) {
-            case COMMAND_JOIN_ROOM:
-              if (this.$store.state.TTSInfo.TTSLang.onJoin != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoin)
-                var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-                var u = new Audio(url)
-                u.src = url
-                u.addEventListener('play', () => {
-                  setTimeout(() => {
-                    this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-                  }, 800)
-                });
-                u.play()
-              }
-              break
-            case COMMAND_ADD_TEXT:
-              if (this.$store.state.TTSInfo.TTSLang.onComment != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onComment)
-                var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-                var u = new Audio(url)
-                u.src = url
-                u.addEventListener('play', () => {
-                  setTimeout(() => {
-                    this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-                  }, 800)
-                });
-                u.play()
-              }
-              break
-            case COMMAND_ADD_FOLLOW:
-              if (this.$store.state.TTSInfo.TTSLang.onFollow != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onFollow)
-                var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-                var u = new Audio(url)
-                u.src = url
-                u.addEventListener('play', () => {
-                  setTimeout(() => {
-                    this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-                  }, 800)
-                });
-                u.play()
-              }
-              break
-            case COMMAND_ADD_JOIN_GROUP:
-              if (this.$store.state.TTSInfo.TTSLang.onJoinClub != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoinClub)
-                var url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-                var u = new Audio(url)
-                u.src = url
-                u.addEventListener('play', () => {
-                  setTimeout(() => {
-                    this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-                  }, 800)
-                });
-                u.play()
-              }
-              break
-          }
+          this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
         }
+
       } else {
         this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
       }
