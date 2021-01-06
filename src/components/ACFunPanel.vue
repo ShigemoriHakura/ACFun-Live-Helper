@@ -288,6 +288,9 @@ export default {
     }
   },
   async created() {
+    this.processTTSQueue()
+    this.$store.commit('addLog', "我很确信的添加了一个TTS启动的Log")
+
     var result = await this.$ACFunCommon.getHTTPResult(
       "https://acfun-helper.oss-cn-shanghai.aliyuncs.com/ACLiveHelper/latest.yml",
       "",
@@ -338,7 +341,6 @@ export default {
 
     window.setInterval(this.loadRoom, 2 * 1000)
     window.setInterval(this.fetchManagerList, 2 * 1000)
-    this.processTTSQueue()
   },
   methods: {
     showSnackbar(content) {
@@ -346,68 +348,73 @@ export default {
       this.$store.state.snackbar.show = true
     },
     processTTSQueue() {
-      //Todo: 改成处理时候再拼装
-      if (this.TTSTimer != null) {
-        window.clearInterval(this.TTSTimer);
-      }
-      if (this.$store.state.TTSInfo.TTSList.length > 0) {
-        console.log("处理TTS队列")
-        var danmaku = this.$store.state.TTSInfo.TTSList.splice(0, 1)
-        danmaku = danmaku[0]
-
-        var url = ""
-
-        if (danmaku.isGift) {
-          var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onGift)
-          url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-        } else {
-          switch (danmaku.type) {
-            case COMMAND_JOIN_ROOM:
-              if (this.$store.state.TTSInfo.TTSLang.onJoin != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoin)
-                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-              }
-              break
-            case COMMAND_ADD_TEXT:
-              if (this.$store.state.TTSInfo.TTSLang.onComment != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onComment)
-                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-              }
-              break
-            case COMMAND_ADD_FOLLOW:
-              if (this.$store.state.TTSInfo.TTSLang.onFollow != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onFollow)
-                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-              }
-              break
-            case COMMAND_ADD_JOIN_GROUP:
-              if (this.$store.state.TTSInfo.TTSLang.onJoinClub != "") {
-                var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoinClub)
-                url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
-              }
-              break
-          }
+      try {
+        //Todo: 改成处理时候再拼装
+        if (this.TTSTimer != null) {
+          window.clearInterval(this.TTSTimer);
         }
+        if (this.$store.state.TTSInfo.TTSList.length > 0) {
+          console.log("处理TTS队列")
+          var danmaku = this.$store.state.TTSInfo.TTSList.splice(0, 1)
+          danmaku = danmaku[0]
 
-        if (url != "") {
-          var u = new Audio(url)
-          u.src = url
-          u.addEventListener('play', () => {
-            setTimeout(() => {
-              this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-            }, 800)
-          });
-          u.play().catch((e) => {
-            window.clearInterval(this.TTSTimer);
+          var url = ""
+
+          if (danmaku.isGift) {
+            var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onGift)
+            url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+          } else {
+            switch (danmaku.type) {
+              case COMMAND_JOIN_ROOM:
+                if (this.$store.state.TTSInfo.TTSLang.onJoin != "") {
+                  var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoin)
+                  url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+                }
+                break
+              case COMMAND_ADD_TEXT:
+                if (this.$store.state.TTSInfo.TTSLang.onComment != "") {
+                  var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onComment)
+                  url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+                }
+                break
+              case COMMAND_ADD_FOLLOW:
+                if (this.$store.state.TTSInfo.TTSLang.onFollow != "") {
+                  var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onFollow)
+                  url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+                }
+                break
+              case COMMAND_ADD_JOIN_GROUP:
+                if (this.$store.state.TTSInfo.TTSLang.onJoinClub != "") {
+                  var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onJoinClub)
+                  url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
+                }
+                break
+            }
+          }
+
+          if (url != "") {
+            var u = new Audio(url)
+            u.src = url
+            u.addEventListener('play', () => {
+              setTimeout(() => {
+                this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
+              }, 800)
+            });
+            u.play().catch((e) => {
+              this.$store.commit('addLog', "【TTS】出现错误：" + e.message + "，请上报开发者")
+              window.clearInterval(this.TTSTimer);
+              this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
+              //console.error(e);
+            });
+          } else {
             this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
-            console.error(e);
-          });
+          }
+
         } else {
           this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
         }
-
-      } else {
-        this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
+      } catch (error) {
+        this.$store.commit('addLog', "【TTS】出现错误：" + error.message + "，请上报开发者")
       }
     },
     getFormatedText(danmaku, text) {
