@@ -18,7 +18,7 @@ Vue.use(VueClipboard)
 Vue.use(Vuex)
 
 
-Vue.prototype.$version = "0.2.26"
+Vue.prototype.$version = "0.2.27"
 Vue.prototype.$ACFunCommon = ACFunCommon
 
 const store = new Vuex.Store({

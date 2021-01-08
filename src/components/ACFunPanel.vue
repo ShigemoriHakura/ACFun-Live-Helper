@@ -415,10 +415,16 @@ export default {
         }
       } catch (error) {
         this.$store.commit('addLog', "【TTS】出现错误：" + error.message + "，请上报开发者")
+        window.clearInterval(this.TTSTimer);
+        this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
       }
     },
     getFormatedText(danmaku, text) {
-      return text.replace(/%s/g, danmaku.nickname).replace(/%n/g, danmaku.num).replace(/%v/g, danmaku.content)
+      if (text != null) {
+        return text.replace(/%s/g, danmaku.nickname).replace(/%n/g, danmaku.num).replace(/%v/g, danmaku.content)
+      } else {
+        return ""
+      }
     },
     getFormatLiveId() {
       if (this.$store.state.roomInfo.liveId != "") {
