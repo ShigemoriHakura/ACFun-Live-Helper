@@ -94,6 +94,7 @@
             <v-row>
               <v-col cols="12" md="12">
                 <v-btn class="ma-2" elevation="2" color="error" @click="stopPush">关闭直播</v-btn>
+                <v-btn class="ma-2" elevation="2" color="primary" @click="delayStopPush">延迟关闭直播</v-btn>
                 <v-btn class="ma-2" elevation="2" color="warning" @click="changeCoverAndTitle">修改封面和标题</v-btn>
               </v-col>
               <v-col cols="12" md="7">
@@ -251,6 +252,7 @@
 </template>
 
 <script>
+//有空重构一下==
 import eConfig from "electron-config"
 import cookie from "cookie"
 import got from "got"
@@ -738,6 +740,14 @@ export default {
       } else {
         this.showSnackbar("正在尝试关播，请稍等。")
       }
+    },
+    delayStopPush() {
+      this.showSnackbar("8秒后关播")
+      setTimeout(() => {
+        this.showSnackbar("关闭直播")
+        console.log("关闭直播")
+        this.stopPush()
+      }, 8000)
     },
     getCover() {
       if (this.$store.state.liveInfo.useGifCover && this.$store.state.liveInfo.liveCoverGif != null && this.$store.state.liveInfo.liveCoverGif != undefined) {

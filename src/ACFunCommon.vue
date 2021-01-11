@@ -161,7 +161,7 @@ export default {
     }
   },
 
-  //不同请求有不同的referer和ua需求，这里统一封装方法。因为formdata有点问题所以多一个RawBody（Buffer）的方法
+  //不同请求有不同的referer和ua需求，这里统一封装方法。因为formdata有点问题所以多一个RawBody（Buffer）的方法，现在formdata好像修好了我也懒得改回去了
   async postHTTPResult(url, referer, cookies, form) {
     try {
       const res = await got(url, {
