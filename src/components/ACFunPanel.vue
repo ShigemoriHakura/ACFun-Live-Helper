@@ -351,7 +351,7 @@ export default {
       try {
         //Todo: 改成处理时候再拼装
         if (this.TTSTimer != null) {
-          window.clearInterval(this.TTSTimer);
+          window.clearInterval(this.TTSTimer)
         }
         if (this.$store.state.TTSInfo.TTSList.length > 0) {
           console.log("处理TTS队列")
@@ -359,7 +359,7 @@ export default {
           danmaku = danmaku[0]
 
           var url = ""
-
+          //这里早就应该处理个text不为空的。。。不知道我为什么没处理，可能是没睡醒，懒得改了==
           if (danmaku.isGift) {
             var text = this.getFormatedText(danmaku, this.$store.state.TTSInfo.TTSLang.onGift)
             url = `https://tts.baidu.com/text2audio?lan=ZH&cuid=baike&pdt=301&ctp=1&spd=` + this.$store.state.TTSInfo.TTSspeed + `&per=` + this.$store.state.TTSInfo.TTSperson + `&vol=` + this.$store.state.TTSInfo.TTSvolume + `&pit=` + this.$store.state.TTSInfo.TTSpitch + `&tex=` + encodeURI(text)
@@ -395,27 +395,24 @@ export default {
           if (url != "") {
             var u = new Audio(url)
             u.src = url
-            u.addEventListener('play', () => {
-              setTimeout(() => {
-                this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
-              }, 800)
-            });
-            u.play().catch((e) => {
-              this.$store.commit('addLog', "【TTS】出现错误：" + e.message + "，请上报开发者")
-              window.clearInterval(this.TTSTimer);
+            //直接在then里面处理了==
+            u.play().then(() => {
+              window.clearInterval(this.TTSTimer)
+              this.TTSTimer = window.setInterval(this.processTTSQueue, u.duration * 1000)
+            }).catch((e) => {
+              this.$store.commit('addLog', "【TTS】播报出现错误：" + e.message + "，请上报开发者")
+              window.clearInterval(this.TTSTimer)
               this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
-              //console.error(e);
-            });
+            })
           } else {
             this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
           }
-
         } else {
           this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
         }
       } catch (error) {
         this.$store.commit('addLog', "【TTS】出现错误：" + error.message + "，请上报开发者")
-        window.clearInterval(this.TTSTimer);
+        window.clearInterval(this.TTSTimer)
         this.TTSTimer = window.setInterval(this.processTTSQueue, 0.5 * 1000)
       }
     },
