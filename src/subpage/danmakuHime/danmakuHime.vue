@@ -30,7 +30,7 @@ export default {
   }),
   mounted() {
     window.addEventListener('load', () => {
-      this.loadPage("https://danmaku.loli.ren/room/" + econfig.get("config.roomId") + "?minGiftPrice=0&exchangeRate=1&showDanmaku=true&showEqualMedal=false&showFollow=true&followText=%E5%85%B3%E6%B3%A8%E4%BA%86%E4%B8%BB%E6%92%AD&showJoin=true&joinText=%E8%BF%9B%E5%85%A5%E4%BA%86%E7%9B%B4%E6%92%AD%E9%97%B4&showQuit=false&quitText=%E7%A6%BB%E5%BC%80%E4%BA%86%E7%9B%B4%E6%92%AD%E9%97%B4&showLove=true&loveText=%E7%82%B9%E4%BA%AE%E7%88%B1%E5%BF%83&showJoinGroup=true&joinGroupText=%E5%8A%A0%E5%85%A5%E4%BA%86%E5%AE%88%E6%8A%A4%E5%9B%A2&showGift=true&showGiftPrice=true&showACCoinInstead=true&showGiftPngInstead=false&showGiftName=true&mergeSimilarDanmaku=false&mergeSimilarOther=true&mergeGift=false&maxNumber=60&blockGiftDanmaku=false&blockKeywords=&blockUsers=&blockMedalLevel=0&autoTranslate=false")
+      this.loadPage("https://danmaku.loli.ren/room/" + econfig.get("config.roomId") + "?minGiftPrice=0&exchangeRate=1&showDanmaku=true&showEqualMedal=false&showFollow=true&followText=%E5%85%B3%E6%B3%A8%E4%BA%86%E4%B8%BB%E6%92%AD&showJoin=true&joinText=%E8%BF%9B%E5%85%A5%E4%BA%86%E7%9B%B4%E6%92%AD%E9%97%B4&showQuit=false&quitText=%E7%A6%BB%E5%BC%80%E4%BA%86%E7%9B%B4%E6%92%AD%E9%97%B4&showLove=true&loveText=%E7%82%B9%E4%BA%AE%E7%88%B1%E5%BF%83&showJoinGroup=true&joinGroupText=%E5%8A%A0%E5%85%A5%E4%BA%86%E5%AE%88%E6%8A%A4%E5%9B%A2&showGift=true&showGiftPrice=true&showACCoinInstead=true&showGiftPngInstead=false&showGiftName=true&mergeSimilarDanmaku=false&mergeSimilarOther=true&mergeGift=true&maxNumber=60&blockGiftDanmaku=false&blockKeywords=&blockUsers=&blockMedalLevel=0&autoTranslate=false")
     })
   },
   methods: {
