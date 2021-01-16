@@ -18,6 +18,10 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>0.2.32</td>
+                  <td>关闭HTTP缓存</td>
+                </tr>
+                <tr>
                   <td>0.2.31</td>
                   <td>合并礼物</td>
                 </tr>
