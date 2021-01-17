@@ -321,14 +321,15 @@ export default {
       var danmaku = newValue[0]
       console.log('房间助手：弹幕状态变更')
       if (this.$store.state.TTSInfo.isTTS) {
-        let result = this.$store.state.TTSInfo.TTSList.find(c => Number(c.userId) === danmaku.userId)
         var push = true
-        if (result) {
-          if (result.content == danmaku.content) {
+        this.$store.state.TTSInfo.TTSList.forEach(element => {
+          if (element.content == danmaku.content && element.id != danmaku.id) {
             push = false
-            result.num += danmaku.num
+            element.num += danmaku.num
+          } else if (element.id == danmaku.id) {
+            push = false
           }
-        }
+        });
         if (push) {
           if (danmaku.isGift && this.$store.state.TTSInfo.TTSgift) {
             this.$store.state.TTSInfo.TTSList.push(danmaku)

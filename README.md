@@ -30,6 +30,7 @@ this.$store.watch((state) => state.roomInfo.danmakuList, async (newValue, oldVal
 * 下播后的直播详情
 
 ## 更新日志
+* 0.2.35 修复复读问题，优化播报队列处理
 * 0.2.34 修复重连机制
 * 0.2.33 加入简单的动态读取
 * 0.2.32 关闭HTTP缓存

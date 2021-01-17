@@ -201,6 +201,7 @@ export default {
         time: timestamp,
         isGift: isGift,
         num: num,
+        id: id,
         uniqueId: Date.now() + id,
         type: tid
       })
@@ -214,6 +215,7 @@ export default {
           time: timestamp,
           isGift: isGift,
           num: num,
+          id: id,
           uniqueId: Date.now() + id,
           type: tid
         })
