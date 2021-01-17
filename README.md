@@ -1,6 +1,15 @@
 # ACFun-Live-Helper
 OBS直播助手
 
+## 组件开发指北
+* 弹幕获取
+```
+this.$store.watch((state) => state.roomInfo.danmakuList, async (newValue, oldValue) => {
+  var danmaku = newValue[0]
+  console.log('助手组件：xxxx：弹幕状态变更')
+}).bind(this)
+```
+
 ## 感谢使用
 念念不忘，必有回响？
 
@@ -21,6 +30,8 @@ OBS直播助手
 * 下播后的直播详情
 
 ## 更新日志
+* 0.2.33 加入简单的动态读取
+* 0.2.32 关闭HTTP缓存
 * 0.2.31 合并礼物
 * 0.2.30 修复重复播报的问题
 * 0.2.29 加入关注检测，加入延迟关播

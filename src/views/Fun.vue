@@ -8,11 +8,17 @@
         <v-tab>
           关注检测
         </v-tab>
+        <v-tab>
+          动态读取
+        </v-tab>
         <v-tab-item>
           <ACDraw />
         </v-tab-item>
         <v-tab-item>
           <ACFollow />
+        </v-tab-item>
+        <v-tab-item>
+          <ACFeed />
         </v-tab-item>
       </v-tabs>
     </v-container>
@@ -23,6 +29,7 @@
 import { formatDate } from '@/utils/timeFormat'
 import ACDraw from '@/components/Fun/ACDraw.vue'
 import ACFollow from '@/components/Fun/ACFollow.vue'
+import ACFeed from '@/components/Fun/ACFeed.vue'
 
 export default {
   data() {
@@ -31,7 +38,8 @@ export default {
   },
   components: {
     ACDraw,
-    ACFollow
+    ACFollow,
+    ACFeed
   },
   filters: {
     formatDate(time) {

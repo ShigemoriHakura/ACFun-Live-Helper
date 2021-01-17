@@ -18,6 +18,10 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>0.2.33</td>
+                  <td>加入简单的动态读取</td>
+                </tr>
+                <tr>
                   <td>0.2.32</td>
                   <td>关闭HTTP缓存</td>
                 </tr>

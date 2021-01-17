@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12" md="4">
         <v-text-field v-model="uperId" label="用户UID"></v-text-field>
-        <v-btn elevation="2" @click="search">读取</v-btn>
+        <v-btn elevation="2" @click="search">检测</v-btn>
       </v-col>
       <v-col cols="12" md="5">
         <v-simple-table>
@@ -73,9 +73,6 @@ export default {
         }
         pcursor = resJson.pcursor
       }
-      console.log(resJson.friendList)
-      //http://api-new.app.acfun.cn/rest/app/relation/getFollows?toUserId=36424299&action=7&pcursor=
-      //console.log(this.uperId)
     },
 
   }
