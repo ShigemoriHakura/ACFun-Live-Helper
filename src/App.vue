@@ -37,6 +37,7 @@ import { ipcRenderer } from 'electron';
 
 const COMMAND_HEARTBEAT = 0
 const COMMAND_JOIN_ROOM = 1
+const COMMAND_SERVER_HEARTBEAT = 233
 const COMMAND_ADD_TEXT = 2
 const COMMAND_ADD_GIFT = 3
 const COMMAND_ADD_FOLLOW = 10
@@ -62,10 +63,16 @@ export default {
       ],
       right: null,
 
+
+      serverHeartbeatTime: 0, //服务器返回心跳的时间
+      clientHeartbeatTime: 0, //客户端发送心跳的时间
+      noHeartbeatCount: 0, //丢失心跳次数
+
       //ws部分
       websocket: null,
       retryCount: 0,
       isDestroying: false,
+      isfirstLoad: true,
       heartbeatTimerId: null
     }
   },
@@ -113,12 +120,24 @@ export default {
       this.websocket.onopen = this.onWsOpen
       this.websocket.onclose = this.onWsClose
       this.websocket.onmessage = this.onWsMessage
-      this.heartbeatTimerId = window.setInterval(this.sendHeartbeat, 10 * 1000)
+      this.heartbeatTimerId = window.setInterval(this.sendHeartbeat, 1 * 1000)
     },
     sendHeartbeat() {
-      this.websocket.send(JSON.stringify({
-        cmd: COMMAND_HEARTBEAT
-      }))
+      if (this.websocket.readyState === 1) {
+        this.websocket.send(JSON.stringify({
+          cmd: COMMAND_HEARTBEAT
+        }))
+      }
+      this.clientHeartbeatTime = Date.now()
+      if (this.clientHeartbeatTime - this.serverHeartbeatTime > 2 * 1000) {
+        window.console.log(`无心跳 ${++this.noHeartbeatCount}`)
+      } else {
+        this.noHeartbeatCount = 0
+      }
+      if (this.noHeartbeatCount > 2) {
+        window.console.log(`无心跳重连`)
+        this.websocket.close()
+      }
     },
     onWsOpen() {
       this.retryCount = 0
@@ -126,7 +145,8 @@ export default {
         cmd: COMMAND_JOIN_ROOM,
         data: {
           roomId: parseInt(this.$store.state.ACFunCommon.userId),
-          version: "9.9.9",
+          version: "0.2.34",
+          isfirstLoad: this.isfirstLoad,
           config: {
             autoTranslate: false
           }
@@ -145,28 +165,32 @@ export default {
       this.wsConnect()
     },
     onWsMessage(event) {
-      let { cmd, data } = JSON.parse(event.data)
-      //window.console.log(data)
-      if (data) {
-        if (data.id != 0) {
-          switch (cmd) {
-            case COMMAND_ADD_TEXT:
-              this.pushToDanmaku(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_TEXT, data.id)
-              break
-            case COMMAND_ADD_GIFT:
-              this.pushToDanmaku(data.authorName, data.num, data.userId, data.giftName, data.timestamp, true, COMMAND_ADD_GIFT, data.id)
-              break
-            case COMMAND_ADD_FOLLOW:
-              this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_FOLLOW, data.id)
-              break
-            case COMMAND_JOIN_ROOM:
-              this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_JOIN_ROOM, data.id)
-              break
-            case COMMAND_ADD_JOIN_GROUP:
-              this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_JOIN_GROUP, data.id)
-              break
-          }
+      try {
+        let { cmd, data } = JSON.parse(event.data)
+        //window.console.log(data)
+        switch (cmd) {
+          case COMMAND_SERVER_HEARTBEAT:
+            this.isfirstLoad = false
+            this.serverHeartbeatTime = Date.now()
+            break
+          case COMMAND_ADD_TEXT:
+            this.pushToDanmaku(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_TEXT, data.id)
+            break
+          case COMMAND_ADD_GIFT:
+            this.pushToDanmaku(data.authorName, data.num, data.userId, data.giftName, data.timestamp, true, COMMAND_ADD_GIFT, data.id)
+            break
+          case COMMAND_ADD_FOLLOW:
+            this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_FOLLOW, data.id)
+            break
+          case COMMAND_JOIN_ROOM:
+            this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_JOIN_ROOM, data.id)
+            break
+          case COMMAND_ADD_JOIN_GROUP:
+            this.pushToTTS(data.authorName, 1, data.userId, data.content, data.timestamp, false, COMMAND_ADD_JOIN_GROUP, data.id)
+            break
         }
+      } catch (error) {
+        this.$store.commit('addLog', "【Danmaku】出现错误：" + error.message + "，请上报开发者")
       }
     },
     pushToDanmaku(name, num, uid, danmaku, timestamp, isGift, tid, id) {
