@@ -96,6 +96,9 @@
                 <v-btn class="ma-2" elevation="2" color="error" @click="stopPush">关闭直播</v-btn>
                 <v-btn class="ma-2" elevation="2" color="primary" @click="delayStopPush">延迟关闭直播</v-btn>
                 <v-btn class="ma-2" elevation="2" color="warning" @click="changeCoverAndTitle">修改封面和标题</v-btn>
+                <v-btn class="ma-2" elevation="2" color="primary" v-clipboard:copy="livelink"
+                  v-clipboard:success="onCopy">
+                  复制直播间地址</v-btn>
               </v-col>
               <v-col cols="12" md="7">
                 <v-img :src="getCover()"></v-img>
@@ -283,11 +286,12 @@ export default {
     isClosing: false,
     //获取转码信息
     getTranscodeInfoTimer: 0,
+    livelink: "",
   }),
   async created() {
     this.categoryId = this.$store.state.liveInfo.liveCategoryId
     this.concreteId = this.$store.state.liveInfo.liveConcreteId
-
+    this.livelink = this.getLiveLink();
     this.$store.watch((state) => state.liveInfo.liveStreamKey, async (newValue, oldValue) => {
       console.log('直播组件：直播推流码变更：' + oldValue + ' -> ' + newValue)
       if (this.$store.state.obsInfo.obsEnabled) {
@@ -390,6 +394,9 @@ export default {
     window.clearInterval(this.getTranscodeInfoTimer)
   },
   methods: {
+    getLiveLink() {
+      return "https://live.acfun.cn/live/" + this.$store.state.ACFunCommon.userId
+    },
     getFormatedDuration(time) {
       var days = time / 1000 / 60 / 60 / 24
       var daysRound = Math.floor(days)
