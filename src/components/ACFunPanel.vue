@@ -23,6 +23,9 @@
       请先登录账号再使用本功能！
     </v-container>
     <v-container v-if="$store.state.config.isLogin" style="max-width: 100%!important;">
+      公共服务由于某些A站用户冲我，所以已经关闭。<br>
+      请前往下载 https://acfun-helper.oss-cn-shanghai.aliyuncs.com/aclivechat-0.2.12-0.2.17-windows.zip<br>
+      然后启动弹幕姬后端以继续使用弹幕功能。<br>
       房间号：{{$store.state.ACFunCommon.userId}}<br>
       请注意：观众列表，投喂列表在关播后会自动清空。
       <v-tabs>
